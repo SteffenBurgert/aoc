@@ -1,3 +1,6 @@
+package _2025.day1
+
+import readFile
 
 fun main() {
     var start = 50

@@ -1,3 +1,6 @@
+package _2025.day3
+
+import readFile
 import kotlin.math.pow
 
 fun main() {

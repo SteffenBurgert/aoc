@@ -1,3 +1,7 @@
+package _2025.day4
+
+import readFile
+
 fun main() {
     val room = mutableListOf<CharArray>()
 

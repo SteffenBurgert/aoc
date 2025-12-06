@@ -1,3 +1,7 @@
+package _2025.day5
+
+import readFile
+
 fun main() {
     val ranges = mutableListOf<LongRange>()
     val ids = mutableListOf<Long>()

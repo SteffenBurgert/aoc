@@ -1,3 +1,7 @@
+package _2025.day2
+
+import readFile
+
 fun main() {
 
     var invalidIdPart1 = 0L
