@@ -26,18 +26,27 @@ private fun determineForkliftsAccess(room: List<CharArray>): List<Pair<Int, Int>
     return rollsOfPaper
 }
 
-private fun calculateAmountOfPossibleAccess(room: List<CharArray>, x: Int, y: Int): Int {
-    val topLeft = if (y - 1 >= 0 && x - 1 >= 0 && room[y - 1][x - 1] == '@') 1 else 0
-    val top = if (y - 1 >= 0 && room[y - 1][x] == '@') 1 else 0
-    val topRight = if (y - 1 >= 0 && x + 1 < room[x].size && room[y - 1][x + 1] == '@') 1 else 0
-    val left = if (x - 1 >= 0 && room[y][x - 1] == '@') 1 else 0
-    val right = if (x + 1 < room[x].size && room[y][x + 1] == '@') 1 else 0
-    val bottomLeft = if (x - 1 >= 0 && y + 1 < room.size && room[y + 1][x - 1] == '@') 1 else 0
-    val bottom = if (y + 1 < room.size && room[y + 1][x] == '@') 1 else 0
-    val bottomRight =
-        if (x + 1 < room[x].size && y + 1 < room.size && room[y + 1][x + 1] == '@') 1 else 0
+private fun calculateAmountOfPossibleAccess(room: List<CharArray>, xPos: Int, yPos: Int): Int {
+    var amount = 0
 
-    return topLeft + top + topRight + left + right + bottomLeft + bottom + bottomRight
+    for (y in -1..1) {
+        for (x in -1..1) {
+            if (x == 0 && y == 0) continue
+
+            val calculatedY = yPos + y
+            val calculatedX = xPos + x
+
+            if (
+                calculatedY >= 0 && calculatedY < room.size &&
+                calculatedX >= 0 && calculatedX < room.first().size &&
+                room[calculatedY][calculatedX] == '@'
+            ) {
+                amount++
+            }
+        }
+    }
+
+    return amount
 }
 
 private fun calculateAmountOfRemovedPapers(room: List<CharArray>): Int {
