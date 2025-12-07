@@ -41,5 +41,5 @@ bin/
 ### Mac OS ###
 .DS_Store
 
-**/resources/_*/
+**/resources/_*/*.txt
 
