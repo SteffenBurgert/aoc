@@ -1,0 +1,3 @@
+aoc:
+  configuration:
+    enable-swagger: true

@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: backend
+  output:
+    ansi:
+      enabled: ALWAYS
+
+aoc:
+  configuration:
+    enable-swagger: true
