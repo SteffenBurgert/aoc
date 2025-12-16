@@ -1,0 +1,58 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>File upload</mat-card-title>
+  </mat-card-header>
+  <mat-card-content class="upload-content">
+    <mat-form-field>
+      <mat-label>Year</mat-label>
+      <mat-select [formControl]="yearsControl" required>
+        @for (year of years; track year) {
+          <mat-option [value]="year">{{year}}</mat-option>
+        }
+      </mat-select>
+      @if (yearsControl.hasError('required')) {
+        <mat-error>Please a year</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Day</mat-label>
+      <mat-select [formControl]="daysControl" required>
+        @for (day of days; track day) {
+          <mat-option [value]="day">{{day}}</mat-option>
+        }
+      </mat-select>
+      @if (daysControl.hasError('required')) {
+        <mat-error>Please a day</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>File name</mat-label>
+      <input matInput placeholder="File name" value="" disabled>
+    </mat-form-field>
+
+    <input hidden type="file" class="file-input" (change)="onFileSelected($event)" #lstLineModel/>
+
+    <div class="file-upload">
+      <button mat-mini-fab color="primary" class="upload-btn" (click)="lstLineModel.click()">
+        <mat-icon>upload_file</mat-icon>
+      </button>
+    </div>
+  </mat-card-content>
+</mat-card>
+
+<mat-accordion multi>
+  <mat-expansion-panel [expanded]="true">
+    <mat-expansion-panel-header>
+      <mat-panel-title> Part 1</mat-panel-title>
+    </mat-expansion-panel-header>
+    <p> {{ aocSolution()?.part1 }} </p>
+  </mat-expansion-panel>
+  <mat-expansion-panel [expanded]="true">
+    <mat-expansion-panel-header>
+      <mat-panel-title> Part 2</mat-panel-title>
+    </mat-expansion-panel-header>
+    <p>{{ aocSolution()?.part2 }}</p>
+  </mat-expansion-panel>
+</mat-accordion>

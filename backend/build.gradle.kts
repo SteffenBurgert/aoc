@@ -1,22 +1,23 @@
 plugins {
-	kotlin("jvm") version "2.2.21"
-	kotlin("plugin.spring") version "2.2.21"
-	id("org.springframework.boot") version "4.0.0"
-	id("io.spring.dependency-management") version "1.1.7"
+    kotlin("jvm") version "2.2.21"
+    kotlin("plugin.spring") version "2.2.21"
+
+    id("org.springframework.boot") version "4.0.0"
+    id("io.spring.dependency-management") version "1.1.7"
 }
 
 group = "aoc"
-version = "0.0.1-SNAPSHOT"
-description = "Demo project for Spring Boot"
+version = "0.0.1"
+description = "AoC Serializer"
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
@@ -39,12 +40,10 @@ dependencies {
     // Spring boot testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
-
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.1")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.4")
-    testImplementation("com.tngtech.archunit:archunit-junit5:1.3.0")
-    testImplementation("io.mockk:mockk:1.13.16")
     testImplementation("io.github.hakky54:logcaptor:2.10.1")
+
+    // Kotlin
+    testImplementation("io.mockk:mockk:1.13.16")
 
     val kotestVersion: String by project
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
@@ -56,11 +55,11 @@ dependencies {
 }
 
 kotlin {
-	compilerOptions {
-		freeCompilerArgs.addAll("-Xjsr305=strict", "-Xannotation-default-target=param-property")
-	}
+    compilerOptions {
+        freeCompilerArgs.addAll("-Xjsr305=strict", "-Xannotation-default-target=param-property")
+    }
 }
 
 tasks.withType<Test> {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }

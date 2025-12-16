@@ -21,7 +21,6 @@ class SecurityConfig(private val properties: SecurityProperties) {
         http
             .cors { it.configurationSource(corsConfigurationSource()) }
             .csrf { it.disable() }
-            .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { requests ->
                 if (properties.enableSwagger) {
                     requests.requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
@@ -35,8 +34,8 @@ class SecurityConfig(private val properties: SecurityProperties) {
     fun corsConfigurationSource(): CorsConfigurationSource {
         val config = CorsConfiguration().apply {
             allowedOrigins = listOf("*")
-            allowedHeaders = listOf("Authentication", "Cache-Control", "Content-Type")
             allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
+            allowedHeaders = listOf("Content-Type")
         }
 
         return UrlBasedCorsConfigurationSource().apply {

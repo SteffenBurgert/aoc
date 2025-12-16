@@ -1,0 +1,35 @@
+.container {
+  display: grid;
+  grid-template-columns: 100dvw;
+  grid-template-rows: 8dvh 88dvh 4dvh;
+  grid-template-areas:
+    "header"
+    "main"
+    "footer";
+}
+
+header, footer {
+  display: flex;
+  align-items: center;
+
+  gap: 1dvw;
+  padding: 1dvh 2dvw;
+
+  background-color: var(--mat-sys-primary-container);
+  //background-color: var(--mat-sys-surface-container);
+}
+
+main {
+  display: flex;
+  margin: 2dvh 2dvw;
+}
+
+.footer-alignment {
+  display: flex;
+  justify-content: space-between;
+}
+
+.footer-wrap {
+  display: flex;
+  flex-wrap: wrap;
+}
