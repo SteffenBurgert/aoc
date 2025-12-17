@@ -1,6 +1,6 @@
-import {Component, inject, NgZone, signal, WritableSignal} from '@angular/core';
+import {Component, inject, NgZone, OnInit, signal, WritableSignal} from '@angular/core';
 import {MatIcon} from "@angular/material/icon";
-import {UploadFileService} from '../../service/upload-file.service';
+import {SerializationService} from '../../service/serialization.service';
 import {AoCSolution} from '../../mdoule/aoc-solution.module';
 import {HttpErrorResponse} from '@angular/common/http';
 import {MatCard, MatCardContent, MatCardHeader, MatCardTitle} from '@angular/material/card';
@@ -14,6 +14,7 @@ import {
 import {MatError, MatFormField, MatInput, MatLabel} from '@angular/material/input';
 import {MatOption, MatSelect} from '@angular/material/select';
 import {FormControl, ReactiveFormsModule, Validators} from '@angular/forms';
+import {Years} from '../../mdoule/year.module';
 
 @Component({
   selector: 'app-serialization',
@@ -39,19 +40,33 @@ import {FormControl, ReactiveFormsModule, Validators} from '@angular/forms';
   templateUrl: './serialization.html',
   styleUrl: './serialization.scss',
 })
-export class Serialization {
-  private readonly uploadFileService = inject(UploadFileService);
+export class Serialization implements OnInit {
+  private readonly serializationService = inject(SerializationService);
   private readonly ngZone = inject(NgZone);
 
-  yearsControl = new FormControl<number | null>(null, Validators.required);
-  daysControl = new FormControl<number | null>(null, Validators.required);
+  aocSolution: WritableSignal<AoCSolution | undefined> = signal(undefined);
 
-  years: Array<number> = [2025, 2024];
-  days: Array<number> = [1, 2, 3, 4, 5, 6, 7];
+  yearsControl: FormControl<number | null> = new FormControl(null, Validators.required);
+  daysControl: FormControl<number | null> = new FormControl(null, Validators.required);
 
-  aocSolution: WritableSignal<AoCSolution | undefined> = signal<AoCSolution | undefined>(undefined);
+  years: Map<number, number[]> = new Map();
+  availableDays: number[] = [];
+
+  ngOnInit(): void {
+    this.getCatalogue();
+    this.getDaysForSelectedYear()
+  }
+
+  public daySelectErrorMessage(): string {
+    return this.availableDays.length === 0 ? "Please select a year first" : "Please select a day"
+  }
 
   public onFileSelected(event: any): void {
+    if (this.yearsControl.value === null || this.daysControl.value === null) {
+      alert("Please select a year and day first");
+      return;
+    }
+
     const file: File = event.target.files[0];
 
     if (file) {
@@ -59,8 +74,8 @@ export class Serialization {
 
       formData.append('file', file);
 
-      this.uploadFileService
-      .uploadFile$(2025, 1, formData)
+      this.serializationService
+      .uploadFile$(this.yearsControl.value, this.daysControl.value, formData)
       .subscribe({
         next: (solution: AoCSolution) => {
           this.ngZone.run(() => {
@@ -72,5 +87,31 @@ export class Serialization {
         },
       });
     }
+  }
+
+  private getCatalogue(): void {
+    this.serializationService.availability$().subscribe({
+      next: (years: Years) => {
+        years.years.forEach((year) => {
+          this.years.set(year.year, year.days)
+        })
+      },
+      error: (error: HttpErrorResponse) => {
+        alert(error);
+      },
+    })
+  }
+
+  private getDaysForSelectedYear(): void {
+    this.yearsControl.valueChanges.subscribe(year => {
+      if (year == null) {
+        this.availableDays = [];
+        this.daysControl.reset();
+        return;
+      }
+
+      this.availableDays = this.years.get(year) ?? [];
+      this.daysControl.reset();
+    });
   }
 }

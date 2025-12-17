@@ -3,37 +3,40 @@ package aoc.backend.service.year._2025.day2
 import aoc.backend.service.catalog.DayInfo
 import aoc.backend.service.year.Day
 import org.springframework.stereotype.Component
-import readFile
 
 @Component("day2_2025")
-//@DayInfo(2025, 2)
+@DayInfo(2025, 2)
 class Day2(): Day {
     override fun part1(lines: List<String>): Long {
-        TODO("Not yet implemented")
-    }
+        var invalidIdSum = 0L
 
-    override fun part2(lines: List<String>): Long {
-        TODO("Not yet implemented")
-    }
-
-    fun initialize() {
-
-        var invalidIdPart1 = 0L
-        var invalidIdPart2 = 0L
-
-        readFile("_2025/day2_input.txt").forEach { line ->
+        lines.forEach { line ->
             line.split(",").forEach { range ->
                 val (start, end) = range.split('-').map { it.toLong() }
 
                 for (value in start..end) {
-                    invalidIdPart1 += part1(value)
-                    invalidIdPart2 += part2(value)
+                    invalidIdSum += part1(value)
                 }
             }
         }
 
-        println("Part 1: $invalidIdPart1")
-        println("Part 2: $invalidIdPart2")
+        return invalidIdSum
+    }
+
+    override fun part2(lines: List<String>): Long {
+        var invalidIdSum = 0L
+
+        lines.forEach { line ->
+            line.split(",").forEach { range ->
+                val (start, end) = range.split('-').map { it.toLong() }
+
+                for (value in start..end) {
+                    invalidIdSum += part2(value)
+                }
+            }
+        }
+
+        return invalidIdSum
     }
 
     private fun part1(value: Long): Long {

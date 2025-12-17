@@ -3,15 +3,16 @@ import {inject, Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {AoCSolution} from '../mdoule/aoc-solution.module';
 import {environment} from '../../environment/environment';
+import {Years} from '../mdoule/year.module';
 
 @Injectable({providedIn: 'root'})
-export class UploadFileService {
+export class SerializationService {
   private readonly apiServerUrl = environment.baseUrl;
 
   private readonly http = inject(HttpClient);
 
-  public availability$(): Observable<any> {
-    return this.http.get<AoCSolution[]>(this.apiServerUrl + 'availability');
+  public availability$(): Observable<Years> {
+    return this.http.get<Years>(this.apiServerUrl + 'availability');
   }
 
   public uploadFile$(year: number, day: number, formData: FormData): Observable<AoCSolution> {

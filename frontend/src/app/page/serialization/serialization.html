@@ -6,24 +6,24 @@
     <mat-form-field>
       <mat-label>Year</mat-label>
       <mat-select [formControl]="yearsControl" required>
-        @for (year of years; track year) {
-          <mat-option [value]="year">{{year}}</mat-option>
+        @for (year of years.keys(); track year) {
+          <mat-option [value]="year">{{ year }}</mat-option>
         }
       </mat-select>
       @if (yearsControl.hasError('required')) {
-        <mat-error>Please a year</mat-error>
+        <mat-error>Please select a year</mat-error>
       }
     </mat-form-field>
 
     <mat-form-field>
       <mat-label>Day</mat-label>
       <mat-select [formControl]="daysControl" required>
-        @for (day of days; track day) {
-          <mat-option [value]="day">{{day}}</mat-option>
+        @for (day of availableDays; track day) {
+          <mat-option [value]="day">{{ day }}</mat-option>
         }
       </mat-select>
       @if (daysControl.hasError('required')) {
-        <mat-error>Please a day</mat-error>
+        <mat-error>{{ daySelectErrorMessage() }}</mat-error>
       }
     </mat-form-field>
 
