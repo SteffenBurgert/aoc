@@ -41,6 +41,11 @@ html, body {
   height: 100%;
 }
 
+
+a {
+  color: var(--mat-sys-primary-text);
+}
+
 body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;

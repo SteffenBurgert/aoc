@@ -13,12 +13,33 @@ import {
 } from '@angular/material/expansion';
 import {MatError, MatFormField, MatInput, MatLabel} from '@angular/material/input';
 import {MatOption, MatSelect} from '@angular/material/select';
-import {FormControl, ReactiveFormsModule, Validators} from '@angular/forms';
+import {FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Years} from '../../mdoule/year.module';
+import {MatCheckbox} from '@angular/material/checkbox';
+import {SolutionCheckPipe} from '../../pipe/solution-check.pipe';
+import {NgClass} from '@angular/common';
+
+export interface Filter {
+  answer: boolean;
+  hints: boolean;
+  showStatus: boolean;
+  showDifference: boolean;
+}
+
+export interface PartStatus<T> {
+  part1: T;
+  part2: T;
+}
+
+export enum Part {
+  PART_ONE = 1,
+  PART_TWO = 2,
+}
 
 @Component({
   selector: 'app-serialization',
   imports: [
+    SolutionCheckPipe,
     MatIcon,
     MatCard,
     MatCardHeader,
@@ -35,7 +56,10 @@ import {Years} from '../../mdoule/year.module';
     MatOption,
     ReactiveFormsModule,
     MatError,
-    MatInput
+    MatInput,
+    MatCheckbox,
+    FormsModule,
+    NgClass
   ],
   templateUrl: './serialization.html',
   styleUrl: './serialization.scss',
@@ -52,9 +76,35 @@ export class Serialization implements OnInit {
   years: Map<number, number[]> = new Map();
   availableDays: number[] = [];
 
+  fileName: string | undefined;
+  filter: Filter = {
+    answer: false,
+    hints: false,
+    showStatus: false,
+    showDifference: false,
+  };
+
+  answerPart1: number | undefined = undefined;
+  answerPart2: number | undefined = undefined;
+
+  status: PartStatus<string> = {
+    part1: '',
+    part2: '',
+  }
+
+  difference: PartStatus<string> = {
+    part1: '',
+    part2: '',
+  }
+
+  solutionCheck: PartStatus<boolean | undefined> = {
+    part1: undefined,
+    part2: undefined,
+  }
+
   ngOnInit(): void {
     this.getCatalogue();
-    this.getDaysForSelectedYear()
+    this.getDaysForSelectedYear();
   }
 
   public daySelectErrorMessage(): string {
@@ -68,6 +118,8 @@ export class Serialization implements OnInit {
     }
 
     const file: File = event.target.files[0];
+
+    this.fileName = file.name;
 
     if (file) {
       const formData: FormData = new FormData();
@@ -87,6 +139,12 @@ export class Serialization implements OnInit {
         },
       });
     }
+  }
+
+  setFilterResults(part: Part) {
+    this.setStatus(part);
+    this.setDifference(part);
+    this.setSolutionCheck(part);
   }
 
   private getCatalogue(): void {
@@ -113,5 +171,68 @@ export class Serialization implements OnInit {
       this.availableDays = this.years.get(year) ?? [];
       this.daysControl.reset();
     });
+  }
+
+  private setSolutionCheck(part: Part): void {
+    switch (part) {
+      case Part.PART_ONE:
+        this.solutionCheck.part1 = this.checkSolution(this.answerPart1, this.aocSolution()?.part1);
+        break;
+      case Part.PART_TWO:
+        this.solutionCheck.part2 = this.checkSolution(this.answerPart2, this.aocSolution()?.part2);
+        break;
+    }
+  }
+
+  private checkSolution(answer: number | undefined, solution: number | undefined): boolean | undefined {
+    if (answer !== undefined && solution !== undefined) {
+      return answer === solution
+    }
+    return undefined;
+  }
+
+  private setStatus(part: Part): void {
+    switch (part) {
+      case Part.PART_ONE:
+        this.status.part1 = this.calculateStatus(this.answerPart1, this.aocSolution()?.part1);
+        break;
+      case Part.PART_TWO:
+        this.status.part2 = this.calculateStatus(this.answerPart2, this.aocSolution()?.part2);
+        break;
+    }
+  }
+
+  private calculateStatus(answer: number | undefined, solution: number | undefined): string {
+    if (answer === undefined && solution === undefined) {
+      return '';
+    } else {
+      if (answer! < solution!) {
+        return "Your answer is to low";
+      }
+      if (answer! > solution!) {
+        return "Your answer is to high";
+      }
+
+      return "Your answer is correct";
+    }
+  }
+
+  private setDifference(part: Part): void {
+    switch (part) {
+      case Part.PART_ONE:
+        this.difference.part1 = this.calculateDifference(this.answerPart1, this.aocSolution()?.part1);
+        break;
+      case Part.PART_TWO:
+        this.difference.part2 = this.calculateDifference(this.answerPart2, this.aocSolution()?.part2);
+        break;
+    }
+  }
+
+  private calculateDifference(answer: number | undefined, solution: number | undefined): string {
+    if (answer === undefined && solution === undefined) {
+      return '';
+    } else {
+      return Math.abs(answer! - solution!).toString()
+    }
   }
 }

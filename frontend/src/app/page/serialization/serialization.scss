@@ -7,10 +7,93 @@
   width: 100%;
 }
 
-.upload-content {
+::ng-deep .mat-expansion-panel-body {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+::ng-deep .mat-expansion-panel-header {
+  padding: 0 16px !important;
+}
+
+.card {
+  background-color: var(--mat-sys-inverse-on-surface);
+  border: 1px solid var(--mat-sys-surface-dim);
+}
+
+.card-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
 
   margin-top: 4dvh;
+}
+
+.card-padding {
+  padding: 0 4dvw;
+}
+
+.file-upload {
+  display: flex;
+  flex-direction: row;
+  gap: 1dvw;
+
+  button {
+    min-height: var(--mat-form-field-container-height, 56px);
+    min-width: var(--mat-form-field-container-height, 56px);
+  }
+}
+
+dl {
+  display: flex;
+  flex-direction: row;
+
+  gap: 1dvw;
+
+  span {
+    padding: calc((var(--mat-checkbox-state-layer-size, 40px) - 18px) / 2) 0;
+  }
+
+  dd, dt {
+    display: flex;
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    margin: 0;
+  }
+}
+
+.dd-solution {
+  width: 10dvw;
+}
+
+.solution-header {
+  display: flex;
+  flex-direction: row;
+
+  justify-content: space-between;
+}
+
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+.correct-answer {
+  background-color: #daf7d6;
+}
+
+@media (prefers-color-scheme: dark) {
+  .correct-answer {
+    background-color: var(--mat-sys-on-primary);
+  }
+}
+
+.incorrect-answer {
+  background-color: var(--mat-sys-error-container);
 }

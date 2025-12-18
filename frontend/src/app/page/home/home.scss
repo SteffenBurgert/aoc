@@ -16,13 +16,17 @@ h1 {
 .disclaimer {
   margin-top: 2rem;
   padding-top: 1rem;
-  border-top: 1px solid #e0e0e0;
+  border-top: 0.3rem solid var(--mat-sys-on-primary-fixed-variant);
 
   margin-bottom: 2rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 0.3rem solid var(--mat-sys-on-primary-fixed-variant);
 
   font-size: 0.85rem;
   line-height: 1.4;
-  color: #666;
+  color: var(--mat-sys-primary);
+
+  b {
+    color: var(--mat-sys-on-primary-fixed-variant);
+  }
 }

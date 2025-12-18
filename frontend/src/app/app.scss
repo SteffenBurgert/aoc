@@ -15,13 +15,16 @@ header, footer {
   gap: 1dvw;
   padding: 1dvh 2dvw;
 
-  background-color: var(--mat-sys-primary-container);
-  //background-color: var(--mat-sys-surface-container);
+  background-color: var(--mat-sys-on-primary-fixed-variant);
+  color: var(--mat-sys-secondary-fixed);
 }
 
 main {
   display: flex;
-  margin: 2dvh 2dvw;
+  margin: 2dvw 0;
+  padding: 0 2dvw;
+
+  overflow: scroll;
 }
 
 .footer-alignment {
