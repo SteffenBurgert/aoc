@@ -1,12 +1,21 @@
 package aoc.backend.service.year._2025.day6
 
 import aoc.backend.service.catalog.DayInfo
+import aoc.backend.service.file.FileValidation
 import aoc.backend.service.year.Day
 import org.springframework.stereotype.Component
 
 @Component("day6_2025")
 @DayInfo(2025, 6)
-class Day6(): Day {
+class Day6() : Day {
+    override fun validate(lines: List<String>): Boolean {
+        val firstPart = lines.takeWhile { lines.indexOf(it) < lines.lastIndex }
+        val secondPart = listOf(lines.last())
+
+        return FileValidation.validate(firstPart, Regex("(\\d+\\s*)+"))
+                && FileValidation.validate(secondPart, Regex("([+,*]+\\s*)+"))
+    }
+
     override fun part1(lines: List<String>): Long {
         return sumNumbers(lines)
     }

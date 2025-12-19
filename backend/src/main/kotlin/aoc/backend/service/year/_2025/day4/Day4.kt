@@ -1,12 +1,17 @@
 package aoc.backend.service.year._2025.day4
 
 import aoc.backend.service.catalog.DayInfo
+import aoc.backend.service.file.FileValidation
 import aoc.backend.service.year.Day
 import org.springframework.stereotype.Component
 
 @Component("day4_2025")
 @DayInfo(2025, 4)
 class Day4() : Day {
+    override fun validate(lines: List<String>): Boolean {
+        return FileValidation.validate(lines, Regex("[.@]+"), lines.first().length)
+    }
+
     override fun part1(lines: List<String>): Long {
         val room = mutableListOf<CharArray>()
 

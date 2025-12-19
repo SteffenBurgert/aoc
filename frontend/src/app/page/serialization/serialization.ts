@@ -2,7 +2,7 @@ import {Component, inject, NgZone, OnInit, signal, WritableSignal} from '@angula
 import {MatIcon} from "@angular/material/icon";
 import {SerializationService} from '../../service/serialization.service';
 import {AoCSolution} from '../../mdoule/aoc-solution.module';
-import {HttpErrorResponse} from '@angular/common/http';
+import {HttpErrorResponse, HttpStatusCode} from '@angular/common/http';
 import {MatCard, MatCardContent, MatCardHeader, MatCardTitle} from '@angular/material/card';
 import {MatMiniFabButton} from '@angular/material/button';
 import {
@@ -20,8 +20,7 @@ import {SolutionCheckPipe} from '../../pipe/solution-check.pipe';
 import {NgClass} from '@angular/common';
 
 export interface Filter {
-  answer: boolean;
-  hints: boolean;
+  solution: boolean;
   showStatus: boolean;
   showDifference: boolean;
 }
@@ -78,8 +77,7 @@ export class Serialization implements OnInit {
 
   fileName: string | undefined;
   filter: Filter = {
-    answer: false,
-    hints: false,
+    solution: false,
     showStatus: false,
     showDifference: false,
   };
@@ -135,7 +133,11 @@ export class Serialization implements OnInit {
           })
         },
         error: (error: HttpErrorResponse) => {
-          alert(error);
+          if (error.status === HttpStatusCode.BadRequest) {
+            alert(`Wrong input for year ${this.yearsControl.value} day ${this.daysControl.value}`);
+          } else {
+            alert("Unknown error. Please reload the page.");
+          }
         },
       });
     }
@@ -154,8 +156,8 @@ export class Serialization implements OnInit {
           this.years.set(year.year, year.days)
         })
       },
-      error: (error: HttpErrorResponse) => {
-        alert(error);
+      error: (_: HttpErrorResponse) => {
+        alert("Couldn't load available years and days. Please try it again later.");
       },
     })
   }
