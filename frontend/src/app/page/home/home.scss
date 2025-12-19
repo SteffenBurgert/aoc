@@ -1,0 +1,32 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+h1 {
+  text-align: center;
+}
+
+.description {
+  padding: 0 20dvw;
+  text-align: justify;
+}
+
+.disclaimer {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 0.3rem solid var(--mat-sys-on-primary-fixed-variant);
+
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 0.3rem solid var(--mat-sys-on-primary-fixed-variant);
+
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--mat-sys-primary);
+
+  b {
+    color: var(--mat-sys-on-primary-fixed-variant);
+  }
+}

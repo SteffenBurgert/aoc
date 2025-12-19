@@ -1,0 +1,23 @@
+<div class="container">
+  <header>
+    <a routerLink="/">
+      <button mat-raised-button>home</button>
+    </a>
+    <a routerLink="/serialization">
+      <button mat-raised-button>Serialization</button>
+    </a>
+  </header>
+  <main>
+    <router-outlet></router-outlet>
+  </main>
+  <footer>
+    <div class="footer-alignment">
+      <div class="footer-wrap">
+        <span>&copy; {{ currentYear }} |&nbsp;</span>
+        <a routerLink="/imprint">Imprint</a>
+        <span>&nbsp;|&nbsp;</span>
+        <a routerLink="/privacy-policy">Privacy Policy</a>
+      </div>
+    </div>
+  </footer>
+</div>
