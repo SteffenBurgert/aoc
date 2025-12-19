@@ -1,13 +1,19 @@
 package aoc.backend.service.year._2025.day8
 
+import aoc.backend.service.catalog.DayInfo
+import aoc.backend.service.file.FileValidation
 import aoc.backend.service.year.Day
 import org.springframework.stereotype.Component
 import kotlin.math.pow
 import kotlin.math.sqrt
 
 @Component("day8_2025")
-//@DayInfo(2025, 8)
+@DayInfo(2025, 8)
 class Day8() : Day {
+    override fun validate(lines: List<String>): Boolean {
+        return FileValidation.validate(lines, Regex("\\d+,\\d+,\\d+"))
+    }
+
     override fun part1(lines: List<String>): Long {
         val coordinates = lines.map { line ->
             line.split(",").map(String::toInt)

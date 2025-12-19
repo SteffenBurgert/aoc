@@ -7,11 +7,7 @@ import aoc.backend.service.catalog.DayCatalog
 import aoc.backend.service.file.FileConverter
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 
 @RestController
@@ -48,6 +44,8 @@ class AoCSerializeController(
             ?: return ResponseEntity.notFound().build()
 
         val lines = fileConverter.convertMultiPartToList(multipartFile)
+
+        if (!day.validate(lines)) return ResponseEntity.badRequest().build()
 
         return ResponseEntity.ok(AoCSolutionDto(day.part1(lines), day.part2(lines)))
     }

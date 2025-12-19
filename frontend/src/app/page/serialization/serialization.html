@@ -49,16 +49,9 @@
         <span>Show</span>
       </dd>
       <dt>
-        <div style="display: flex; flex-direction: row">
-          <div style="display: flex; flex-direction: column">
-            <mat-checkbox [(ngModel)]="filter.hints">hints</mat-checkbox>
-            <mat-checkbox [(ngModel)]="filter.showStatus">to low / to high</mat-checkbox>
-          </div>
-          <div style="display: flex; flex-direction: column">
-            <mat-checkbox [(ngModel)]="filter.showDifference">difference</mat-checkbox>
-            <mat-checkbox [(ngModel)]="filter.answer">answer</mat-checkbox>
-          </div>
-        </div>
+        <mat-checkbox [(ngModel)]="filter.showStatus">to low / to high</mat-checkbox>
+        <mat-checkbox [(ngModel)]="filter.showDifference">difference</mat-checkbox>
+        <mat-checkbox [(ngModel)]="filter.solution">solution</mat-checkbox>
       </dt>
     </dl>
   </mat-card-content>
@@ -93,6 +86,12 @@
           <dt>{{ difference.part1 }}</dt>
         </dl>
       }
+      @if (filter.solution) {
+        <dl>
+          <dd class="dd-solution">Solution</dd>
+          <dt>{{ aocSolution()?.part1 }}</dt>
+        </dl>
+      }
     </div>
 
   </mat-expansion-panel>
@@ -124,6 +123,12 @@
         <dl>
           <dd class="dd-solution">Difference</dd>
           <dt>{{ difference.part2 }}</dt>
+        </dl>
+      }
+      @if (filter.solution) {
+        <dl>
+          <dd class="dd-solution">Solution</dd>
+          <dt>{{ aocSolution()?.part2 }}</dt>
         </dl>
       }
     </div>
