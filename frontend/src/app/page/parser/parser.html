@@ -18,7 +18,7 @@
 
       <mat-form-field>
         <mat-label>Day</mat-label>
-        <mat-select [formControl]="daysControl" required>
+        <mat-select (selectionChange)="loadImplementation()" [formControl]="daysControl" required>
           @for (day of availableDays; track day) {
             <mat-option [value]="day">{{ day }}</mat-option>
           }
@@ -70,7 +70,8 @@
     <div class="card-padding">
       <mat-form-field>
         <mat-label>Your answer</mat-label>
-        <input (keyup.enter)="setFilterResults(1)" [(ngModel)]="answerPart1" matInput placeholder="Your answer"
+        <input (keyup.enter)="setFilterResults(1)" [(ngModel)]="answerPart1" matInput
+               placeholder="Your answer"
                type="number">
       </mat-form-field>
 
@@ -109,7 +110,8 @@
     <div class="card-padding">
       <mat-form-field>
         <mat-label>Your answer</mat-label>
-        <input (keyup.enter)="setFilterResults(2)" [(ngModel)]="answerPart2" matInput placeholder="Your answer"
+        <input (keyup.enter)="setFilterResults(2)" [(ngModel)]="answerPart2" matInput
+               placeholder="Your answer"
                type="number">
       </mat-form-field>
 
@@ -136,20 +138,25 @@
   </mat-expansion-panel>
 </mat-accordion>
 
-<mat-card class="card">
-  <mat-card-header>
-    <mat-card-title>Implementation</mat-card-title>
-  </mat-card-header>
-  <mat-card-content class="card-content card-padding">
-    @if (yearsControl.value !== null && daysControl.value !== null) {
-      <a
-        href="https://github.com/SteffenBurgert/aoc/blob/aoc-frontend/backend/src/main/kotlin/aoc/backend/service/year/_{{yearsControl.value}}/day{{daysControl.value}}/Day{{daysControl.value}}.kt"
-        target="_blank"
-        rel="noopener noreferrer">
-        AoC_Year_{{ yearsControl.value }}_Day_{{ daysControl.value }}
-      </a>
-    } @else {
-      <span>Pleas select a year and day first.</span>
-    }
-  </mat-card-content>
-</mat-card>
+<mat-accordion>
+  <mat-expansion-panel [expanded]="false" class="card">
+    <mat-expansion-panel-header class="mat-mdc-card-header">
+      <mat-panel-title class="mat-mdc-card-title">Implementation</mat-panel-title>
+    </mat-expansion-panel-header>
+    <div class="card-padding">
+      @if (yearsControl.value !== null && daysControl.value !== null) {
+        <span>Link to:
+          <a
+            href="https://github.com/SteffenBurgert/aoc/tree/main/backend/src/main/kotlin/aoc/backend/service/year/_{{yearsControl.value}}/day{{daysControl.value}}/Day{{daysControl.value}}.kt"
+            target="_blank"
+            rel="noopener noreferrer">
+          AoC_Year_{{ yearsControl.value }}_Day_{{ daysControl.value }}
+        </a>
+        </span>
+        <pre>{{ kotlinImplementation() }}</pre>
+      } @else {
+        <span>Pleas select a year and day first.</span>
+      }
+    </div>
+  </mat-expansion-panel>
+</mat-accordion>

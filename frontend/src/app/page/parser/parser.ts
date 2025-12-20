@@ -2,7 +2,7 @@ import {Component, inject, NgZone, OnInit, signal, WritableSignal} from '@angula
 import {MatIcon} from "@angular/material/icon";
 import {ParsingService} from '../../service/parsing.service';
 import {AoCSolution} from '../../mdoule/aoc-solution.module';
-import {HttpErrorResponse, HttpStatusCode} from '@angular/common/http';
+import {HttpClient, HttpErrorResponse, HttpStatusCode} from '@angular/common/http';
 import {MatCard, MatCardContent, MatCardHeader, MatCardTitle} from '@angular/material/card';
 import {MatMiniFabButton} from '@angular/material/button';
 import {
@@ -69,6 +69,7 @@ export class Parser implements OnInit {
   private readonly ngZone = inject(NgZone);
 
   aocSolution: WritableSignal<AoCSolution | undefined> = signal(undefined);
+  private readonly http = inject(HttpClient);
 
   yearsControl: FormControl<number | null> = new FormControl(null, Validators.required);
   daysControl: FormControl<number | null> = new FormControl(null, Validators.required);
@@ -148,6 +149,30 @@ export class Parser implements OnInit {
     this.setStatus(part);
     this.setDifference(part);
     this.setSolutionCheck(part);
+  }
+
+  loadImplementation(): void {
+    if (this.yearsControl.value === null || this.daysControl.value === null) {
+      return;
+    }
+
+    const url = `https://raw.githubusercontent.com/SteffenBurgert/aoc/refs/heads/main/backend/src/main/kotlin/aoc/backend/service/year/_${this.yearsControl.value}/day${this.daysControl.value}/Day${this.daysControl.value}.kt`;
+
+    this.http.get(url, {responseType: 'text'}).subscribe(text => {
+      const lines = text.split('\n');
+
+      const dayInfoIndex = lines.findIndex(line =>
+        line.includes('@DayInfo')
+      );
+
+      if (dayInfoIndex !== -1 && dayInfoIndex + 1 < lines.length) {
+        const result = lines.slice(dayInfoIndex + 1).join('\n');
+
+        this.ngZone.run(() => {
+          this.kotlinImplementation.set(result);
+        });
+      }
+    });
   }
 
   private getCatalogue(): void {
