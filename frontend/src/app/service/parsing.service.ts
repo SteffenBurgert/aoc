@@ -6,7 +6,7 @@ import {environment} from '../../environment/environment';
 import {Years} from '../mdoule/year.module';
 
 @Injectable({providedIn: 'root'})
-export class SerializationService {
+export class ParsingService {
   private readonly apiServerUrl = environment.baseUrl;
 
   private readonly http = inject(HttpClient);
