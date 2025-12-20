@@ -23,6 +23,7 @@ export interface Filter {
   solution: boolean;
   showStatus: boolean;
   showDifference: boolean;
+  implementation: boolean;
 }
 
 export interface PartStatus<T> {
@@ -79,9 +80,10 @@ export class Parser implements OnInit {
 
   fileName: string | undefined;
   filter: Filter = {
-    solution: false,
     showStatus: false,
     showDifference: false,
+    solution: false,
+    implementation: false,
   };
 
   answerPart1: number | undefined = undefined;

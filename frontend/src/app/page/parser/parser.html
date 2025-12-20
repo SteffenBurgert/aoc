@@ -49,9 +49,16 @@
         <span>Show</span>
       </dd>
       <dt>
-        <mat-checkbox [(ngModel)]="filter.showStatus">to low / to high</mat-checkbox>
-        <mat-checkbox [(ngModel)]="filter.showDifference">difference</mat-checkbox>
-        <mat-checkbox [(ngModel)]="filter.solution">solution</mat-checkbox>
+        <div style="display: flex; flex-direction: row">
+          <div style="display: flex; flex-direction: column">
+            <mat-checkbox [(ngModel)]="filter.showStatus">to low / to high</mat-checkbox>
+            <mat-checkbox [(ngModel)]="filter.showDifference">difference</mat-checkbox>
+          </div>
+          <div style="display: flex; flex-direction: column">
+            <mat-checkbox [(ngModel)]="filter.solution">solution</mat-checkbox>
+            <mat-checkbox [(ngModel)]="filter.implementation">implementation</mat-checkbox>
+          </div>
+        </div>
       </dt>
     </dl>
   </mat-card-content>
@@ -138,14 +145,15 @@
   </mat-expansion-panel>
 </mat-accordion>
 
-<mat-accordion>
-  <mat-expansion-panel [expanded]="false" class="card">
-    <mat-expansion-panel-header class="mat-mdc-card-header">
-      <mat-panel-title class="mat-mdc-card-title">Implementation</mat-panel-title>
-    </mat-expansion-panel-header>
-    <div class="card-padding">
-      @if (yearsControl.value !== null && daysControl.value !== null) {
-        <span>Link to:
+@if (filter.implementation) {
+  <mat-accordion>
+    <mat-expansion-panel [expanded]="false" class="card">
+      <mat-expansion-panel-header class="mat-mdc-card-header">
+        <mat-panel-title class="mat-mdc-card-title">Implementation</mat-panel-title>
+      </mat-expansion-panel-header>
+      <div class="card-padding">
+        @if (yearsControl.value !== null && daysControl.value !== null) {
+          <span>Link to:
           <a
             href="https://github.com/SteffenBurgert/aoc/tree/main/backend/src/main/kotlin/aoc/backend/service/year/_{{yearsControl.value}}/day{{daysControl.value}}/Day{{daysControl.value}}.kt"
             target="_blank"
@@ -153,10 +161,11 @@
           AoC_Year_{{ yearsControl.value }}_Day_{{ daysControl.value }}
         </a>
         </span>
-        <pre>{{ kotlinImplementation() }}</pre>
-      } @else {
-        <span>Pleas select a year and day first.</span>
-      }
-    </div>
-  </mat-expansion-panel>
-</mat-accordion>
+          <pre>{{ kotlinImplementation() }}</pre>
+        } @else {
+          <span>Pleas select a year and day first.</span>
+        }
+      </div>
+    </mat-expansion-panel>
+  </mat-accordion>
+}
