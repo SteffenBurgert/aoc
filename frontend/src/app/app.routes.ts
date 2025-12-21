@@ -1,6 +1,6 @@
-import { Routes } from '@angular/router';
+import {Routes} from '@angular/router';
 import {Home} from './page/home/home';
-import {Serialization} from './page/serialization/serialization';
+import {Parser} from './page/parser/parser';
 import {Imprint} from './page/imprint/imprint';
 import {PrivacyPolicy} from './page/privacy-policy/privacy-policy';
 
@@ -10,8 +10,8 @@ export const routes: Routes = [
     component: Home
   },
   {
-    path: 'serialization',
-    component: Serialization
+    path: 'parser',
+    component: Parser
   },
   {
     path: 'imprint',

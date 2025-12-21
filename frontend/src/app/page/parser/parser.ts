@@ -1,6 +1,6 @@
 import {Component, inject, NgZone, OnInit, signal, WritableSignal} from '@angular/core';
 import {MatIcon} from "@angular/material/icon";
-import {SerializationService} from '../../service/serialization.service';
+import {ParsingService} from '../../service/parsing.service';
 import {AoCSolution} from '../../mdoule/aoc-solution.module';
 import {HttpErrorResponse, HttpStatusCode} from '@angular/common/http';
 import {MatCard, MatCardContent, MatCardHeader, MatCardTitle} from '@angular/material/card';
@@ -36,7 +36,8 @@ export enum Part {
 }
 
 @Component({
-  selector: 'app-serialization',
+  selector: 'app-parser',
+  standalone: true,
   imports: [
     SolutionCheckPipe,
     MatIcon,
@@ -60,11 +61,11 @@ export enum Part {
     FormsModule,
     NgClass
   ],
-  templateUrl: './serialization.html',
-  styleUrl: './serialization.scss',
+  templateUrl: './parser.html',
+  styleUrl: './parser.scss',
 })
-export class Serialization implements OnInit {
-  private readonly serializationService = inject(SerializationService);
+export class Parser implements OnInit {
+  private readonly parsingService = inject(ParsingService);
   private readonly ngZone = inject(NgZone);
 
   aocSolution: WritableSignal<AoCSolution | undefined> = signal(undefined);
@@ -124,7 +125,7 @@ export class Serialization implements OnInit {
 
       formData.append('file', file);
 
-      this.serializationService
+      this.parsingService
       .uploadFile$(this.yearsControl.value, this.daysControl.value, formData)
       .subscribe({
         next: (solution: AoCSolution) => {
@@ -150,7 +151,7 @@ export class Serialization implements OnInit {
   }
 
   private getCatalogue(): void {
-    this.serializationService.availability$().subscribe({
+    this.parsingService.availability$().subscribe({
       next: (years: Years) => {
         years.years.forEach((year) => {
           this.years.set(year.year, year.days)
