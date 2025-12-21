@@ -15,20 +15,106 @@ class Day8() : Day {
     }
 
     override fun part1(lines: List<String>): Long {
-        val coordinates = lines.map { line ->
-            line.split(",").map(String::toInt)
-                .run { Coordinate(this[0], this[1], this[2]) }
-        }
-
-        val shortestConnections = calculateShortestConnections(coordinates)
-        val groups = findGroups(shortestConnections)
+        val coordinates = getCoordinates(lines)
+        val groups = getGroupedCoordinates(coordinates)
 
         return multiplyLargestThreeGroups(groups)
     }
 
     override fun part2(lines: List<String>): Long {
-        //TODO("Not yet implemented")
-        return 0L
+        val coordinates = getCoordinates(lines)
+        val groups = getGroupedCoordinates(coordinates).toMutableList()
+
+        val coordinatesNotInAGroup = mutableListOf<Coordinate>()
+        coordinates.forEach { coordinate ->
+            if (groups.none { group -> group.any { it.first == coordinate || it.second == coordinate } }) {
+                coordinatesNotInAGroup.add(coordinate)
+            }
+        }
+
+        while (coordinatesNotInAGroup.isNotEmpty()) {
+            val coordinate = coordinatesNotInAGroup.removeFirst()
+
+            var shortestDistance: Connection? = null
+            var groupIndex = -1
+            groups.forEachIndexed { index, group ->
+                val groupCoordinates = mutableSetOf<Coordinate>()
+
+                group.forEach {
+                    groupCoordinates.add(it.first)
+                    groupCoordinates.add(it.second)
+                }
+
+                groupCoordinates.forEach {
+                    calculateDistance(it, coordinate).let { distance ->
+                        if (distance < (shortestDistance?.distance ?: Double.MAX_VALUE)) {
+                            shortestDistance = Connection(it, coordinate, distance)
+                            groupIndex = index
+                        }
+                    }
+                }
+            }
+
+            coordinatesNotInAGroup.forEach {
+                calculateDistance(it, coordinate).let { distance ->
+                    if (distance < (shortestDistance?.distance ?: Double.MAX_VALUE)) {
+                        shortestDistance = Connection(it, coordinate, distance)
+                        groupIndex = -1
+                    }
+                }
+            }
+
+            if (shortestDistance == null) throw NullPointerException("shortestDistance is null")
+
+            if (groupIndex >= 0) {
+                val test: MutableList<Connection> = groups.removeAt(groupIndex).toMutableList()
+                test.add(
+                    Connection(
+                        shortestDistance.first,
+                        shortestDistance.second,
+                        shortestDistance.distance
+                    )
+                )
+
+                groups.add(test)
+            } else {
+                groups.add(
+                    listOf(
+                        Connection(
+                            shortestDistance.first,
+                            shortestDistance.second,
+                            shortestDistance.distance
+                        )
+                    )
+                )
+                coordinatesNotInAGroup.remove(shortestDistance.first)
+            }
+        }
+
+        var max: Connection? = null
+        groups.forEach { connections ->
+            connections.forEach {
+                if ((max?.distance ?: Double.MIN_VALUE) < it.distance) {
+                    max = it
+                }
+            }
+        }
+
+        if (max == null) return -1
+
+        return max.first.x.toLong() * max.second.x.toLong()
+    }
+
+    private fun getCoordinates(lines: List<String>): List<Coordinate> {
+        return lines.map { line ->
+            line.split(",").map(String::toInt)
+                .run { Coordinate(this[0], this[1], this[2]) }
+        }
+    }
+
+    private fun getGroupedCoordinates(coordinates: List<Coordinate>): List<List<Connection>> {
+        val shortestConnections = calculateShortestConnections(coordinates)
+        return findGroups(shortestConnections)
     }
 
     private fun calculateShortestConnections(coordinates: List<Coordinate>): MutableList<Connection> {
@@ -146,5 +232,5 @@ data class Coordinate(
 data class Connection(
     val first: Coordinate,
     val second: Coordinate,
-    val distance: Double
+    val distance: Double,
 )
