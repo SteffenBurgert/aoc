@@ -33,7 +33,7 @@
   padding: 0 4dvw;
 }
 
-.file-upload {
+.input-button__container {
   display: flex;
   flex-direction: row;
   gap: 1dvw;
@@ -96,4 +96,8 @@ input::-webkit-inner-spin-button {
 
 .incorrect-answer {
   background-color: var(--mat-sys-error-container);
+}
+
+.description-warning {
+  color: var(--mat-sys-error);
 }

@@ -3,7 +3,7 @@
     <mat-card-title>File upload</mat-card-title>
   </mat-card-header>
   <mat-card-content class="card-content card-padding">
-    <div class="file-upload">
+    <div class="input-button__container">
       <mat-form-field>
         <mat-label>Year</mat-label>
         <mat-select [formControl]="yearsControl" required>
@@ -18,7 +18,7 @@
 
       <mat-form-field>
         <mat-label>Day</mat-label>
-        <mat-select [formControl]="daysControl" required>
+        <mat-select (selectionChange)="loadImplementation()" [formControl]="daysControl" required>
           @for (day of availableDays; track day) {
             <mat-option [value]="day">{{ day }}</mat-option>
           }
@@ -29,13 +29,14 @@
       </mat-form-field>
     </div>
 
-    <div class="file-upload">
+    <div class="input-button__container">
       <mat-form-field>
         <mat-label>File name</mat-label>
         <input disabled matInput placeholder="File name" value="{{fileName}}">
       </mat-form-field>
 
-      <input #lstLineModel (change)="onFileSelected($event)" class="file-input" hidden type="file"/>
+      <input #lstLineModel (change)="onFileSelected($event)" class="icon-button" hidden
+             type="file"/>
 
       <div>
         <button (click)="lstLineModel.click()" class="upload-btn" color="primary" mat-mini-fab>
@@ -49,13 +50,43 @@
         <span>Show</span>
       </dd>
       <dt>
-        <mat-checkbox [(ngModel)]="filter.showStatus">to low / to high</mat-checkbox>
-        <mat-checkbox [(ngModel)]="filter.showDifference">difference</mat-checkbox>
-        <mat-checkbox [(ngModel)]="filter.solution">solution</mat-checkbox>
+        <div style="display: flex; flex-direction: row">
+          <div style="display: flex; flex-direction: column">
+            <mat-checkbox [(ngModel)]="filter.showStatus">to low / to high</mat-checkbox>
+            <mat-checkbox [(ngModel)]="filter.showDifference">difference</mat-checkbox>
+          </div>
+          <div style="display: flex; flex-direction: column">
+            <mat-checkbox [(ngModel)]="filter.solution">solution</mat-checkbox>
+            <mat-checkbox [(ngModel)]="filter.implementation">implementation</mat-checkbox>
+          </div>
+        </div>
       </dt>
     </dl>
   </mat-card-content>
 </mat-card>
+
+<mat-accordion>
+  <mat-expansion-panel [expanded]="false" class="card">
+    <mat-expansion-panel-header class="mat-mdc-card-header">
+      <mat-panel-title class="mat-mdc-card-title">Advent of Code description</mat-panel-title>
+    </mat-expansion-panel-header>
+    <div class="card-padding">
+      <span>URL:
+        @if (yearsControl.value !== null && daysControl.value
+        !== null) {
+          <a
+            href="{{environment.aocUrl}}/{{yearsControl.value}}/day/{{daysControl.value}}"
+            rel="noopener noreferrer"
+            target="_blank">
+            {{ environment.aocUrl }}/{{ yearsControl.value }}/day/{{ daysControl.value }}
+          </a>
+        } @else {
+          <span class="description-warning">Select a year & day first.</span>
+        }
+      </span>
+    </div>
+  </mat-expansion-panel>
+</mat-accordion>
 
 <mat-accordion multi>
   <mat-expansion-panel [expanded]="true" [ngClass]="{
@@ -68,11 +99,17 @@
     </mat-expansion-panel-header>
 
     <div class="card-padding">
-      <mat-form-field>
-        <mat-label>Your answer</mat-label>
-        <input (keyup.enter)="setFilterResults(1)" [(ngModel)]="answerPart1" matInput placeholder="Your answer"
-               type="number">
-      </mat-form-field>
+      <div class="input-button__container">
+        <mat-form-field>
+          <mat-label>Your answer</mat-label>
+          <input (keyup.enter)="setFilterResults(1)" [(ngModel)]="answerPart1" matInput
+                 placeholder="Your answer"
+                 type="number">
+        </mat-form-field>
+        <button (click)="setFilterResults(1)" color="primary" mat-mini-fab>
+          <mat-icon>check</mat-icon>
+        </button>
+      </div>
 
       @if (filter.showStatus) {
         <dl>
@@ -107,11 +144,17 @@
     </mat-expansion-panel-header>
 
     <div class="card-padding">
-      <mat-form-field>
-        <mat-label>Your answer</mat-label>
-        <input (keyup.enter)="setFilterResults(2)" [(ngModel)]="answerPart2" matInput placeholder="Your answer"
-               type="number">
-      </mat-form-field>
+      <div class="input-button__container">
+        <mat-form-field>
+          <mat-label>Your answer</mat-label>
+          <input (keyup.enter)="setFilterResults(2)" [(ngModel)]="answerPart2" matInput
+                 placeholder="Your answer"
+                 type="number">
+        </mat-form-field>
+        <button (click)="setFilterResults(2)" color="primary" mat-mini-fab>
+          <mat-icon>check</mat-icon>
+        </button>
+      </div>
 
       @if (filter.showStatus) {
         <dl>
@@ -136,20 +179,27 @@
   </mat-expansion-panel>
 </mat-accordion>
 
-<mat-card class="card">
-  <mat-card-header>
-    <mat-card-title>Implementation</mat-card-title>
-  </mat-card-header>
-  <mat-card-content class="card-content card-padding">
-    @if (yearsControl.value !== null && daysControl.value !== null) {
-      <a
-        href="https://github.com/SteffenBurgert/aoc/blob/aoc-frontend/backend/src/main/kotlin/aoc/backend/service/year/_{{yearsControl.value}}/day{{daysControl.value}}/Day{{daysControl.value}}.kt"
-        target="_blank"
-        rel="noopener noreferrer">
-        AoC_Year_{{ yearsControl.value }}_Day_{{ daysControl.value }}
-      </a>
-    } @else {
-      <span>Pleas select a year and day first.</span>
-    }
-  </mat-card-content>
-</mat-card>
+@if (filter.implementation) {
+  <mat-accordion>
+    <mat-expansion-panel [expanded]="false" class="card">
+      <mat-expansion-panel-header class="mat-mdc-card-header">
+        <mat-panel-title class="mat-mdc-card-title">Implementation</mat-panel-title>
+      </mat-expansion-panel-header>
+      <div class="card-padding">
+        @if (yearsControl.value !== null && daysControl.value !== null) {
+          <span>Link to:
+          <a
+            href="{{environment.githubUrl}}/{{environment.githubPathToYear}}/_{{yearsControl.value}}/day{{daysControl.value}}/Day{{daysControl.value}}.kt"
+            target="_blank"
+            rel="noopener noreferrer">
+          AoC_Year_{{ yearsControl.value }}_Day_{{ daysControl.value }}
+        </a>
+        </span>
+          <pre>{{ kotlinImplementation() }}</pre>
+        } @else {
+          <span>Pleas select a year and day first.</span>
+        }
+      </div>
+    </mat-expansion-panel>
+  </mat-accordion>
+}

@@ -2,7 +2,7 @@ import {Component, inject, NgZone, OnInit, signal, WritableSignal} from '@angula
 import {MatIcon} from "@angular/material/icon";
 import {ParsingService} from '../../service/parsing.service';
 import {AoCSolution} from '../../mdoule/aoc-solution.module';
-import {HttpErrorResponse, HttpStatusCode} from '@angular/common/http';
+import {HttpClient, HttpErrorResponse, HttpStatusCode} from '@angular/common/http';
 import {MatCard, MatCardContent, MatCardHeader, MatCardTitle} from '@angular/material/card';
 import {MatMiniFabButton} from '@angular/material/button';
 import {
@@ -18,11 +18,13 @@ import {Years} from '../../mdoule/year.module';
 import {MatCheckbox} from '@angular/material/checkbox';
 import {SolutionCheckPipe} from '../../pipe/solution-check.pipe';
 import {NgClass} from '@angular/common';
+import {environment} from '../../../environment/environment';
 
 export interface Filter {
   solution: boolean;
   showStatus: boolean;
   showDifference: boolean;
+  implementation: boolean;
 }
 
 export interface PartStatus<T> {
@@ -67,8 +69,11 @@ export enum Part {
 export class Parser implements OnInit {
   private readonly parsingService = inject(ParsingService);
   private readonly ngZone = inject(NgZone);
+  private readonly http = inject(HttpClient);
+  protected readonly environment = environment;
 
   aocSolution: WritableSignal<AoCSolution | undefined> = signal(undefined);
+  kotlinImplementation: WritableSignal<string | undefined> = signal(undefined);
 
   yearsControl: FormControl<number | null> = new FormControl(null, Validators.required);
   daysControl: FormControl<number | null> = new FormControl(null, Validators.required);
@@ -78,9 +83,10 @@ export class Parser implements OnInit {
 
   fileName: string | undefined;
   filter: Filter = {
-    solution: false,
     showStatus: false,
     showDifference: false,
+    solution: false,
+    implementation: false,
   };
 
   answerPart1: number | undefined = undefined;
@@ -237,5 +243,29 @@ export class Parser implements OnInit {
     } else {
       return Math.abs(answer! - solution!).toString()
     }
+  }
+
+  loadImplementation(): void {
+    if (this.yearsControl.value === null || this.daysControl.value === null) {
+      return;
+    }
+
+    const url = `${environment.rawGithubUrl}/${environment.rawGithubPathToYear}/_${this.yearsControl.value}/day${this.daysControl.value}/Day${this.daysControl.value}.kt`;
+
+    this.http.get(url, {responseType: 'text'}).subscribe(text => {
+      const lines = text.split('\n');
+
+      const dayInfoIndex = lines.findIndex(line =>
+        line.includes('@DayInfo')
+      );
+
+      if (dayInfoIndex !== -1 && dayInfoIndex + 1 < lines.length) {
+        const result = lines.slice(dayInfoIndex + 1).join('\n');
+
+        this.ngZone.run(() => {
+          this.kotlinImplementation.set(result);
+        });
+      }
+    });
   }
 }
