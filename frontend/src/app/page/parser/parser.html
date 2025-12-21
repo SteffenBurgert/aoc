@@ -155,7 +155,7 @@
         @if (yearsControl.value !== null && daysControl.value !== null) {
           <span>Link to:
           <a
-            href="https://github.com/SteffenBurgert/aoc/tree/main/backend/src/main/kotlin/aoc/backend/service/year/_{{yearsControl.value}}/day{{daysControl.value}}/Day{{daysControl.value}}.kt"
+            href="{{environment.githubUrl}}/{{environment.githubPathToYear}}/_{{yearsControl.value}}/day{{daysControl.value}}/Day{{daysControl.value}}.kt"
             target="_blank"
             rel="noopener noreferrer">
           AoC_Year_{{ yearsControl.value }}_Day_{{ daysControl.value }}
