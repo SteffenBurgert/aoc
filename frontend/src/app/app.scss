@@ -36,3 +36,17 @@ main {
   display: flex;
   flex-wrap: wrap;
 }
+
+.home-button {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  width: fit-content;
+  height: fit-content;
+
+  &__image {
+    border-radius: 10px;
+    cursor: pointer;
+  }
+}
