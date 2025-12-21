@@ -3,7 +3,7 @@
     <mat-card-title>File upload</mat-card-title>
   </mat-card-header>
   <mat-card-content class="card-content card-padding">
-    <div class="file-upload">
+    <div class="input-button__container">
       <mat-form-field>
         <mat-label>Year</mat-label>
         <mat-select [formControl]="yearsControl" required>
@@ -29,13 +29,14 @@
       </mat-form-field>
     </div>
 
-    <div class="file-upload">
+    <div class="input-button__container">
       <mat-form-field>
         <mat-label>File name</mat-label>
         <input disabled matInput placeholder="File name" value="{{fileName}}">
       </mat-form-field>
 
-      <input #lstLineModel (change)="onFileSelected($event)" class="file-input" hidden type="file"/>
+      <input #lstLineModel (change)="onFileSelected($event)" class="icon-button" hidden
+             type="file"/>
 
       <div>
         <button (click)="lstLineModel.click()" class="upload-btn" color="primary" mat-mini-fab>
@@ -64,6 +65,29 @@
   </mat-card-content>
 </mat-card>
 
+<mat-accordion>
+  <mat-expansion-panel [expanded]="false" class="card">
+    <mat-expansion-panel-header class="mat-mdc-card-header">
+      <mat-panel-title class="mat-mdc-card-title">Advent of Code description</mat-panel-title>
+    </mat-expansion-panel-header>
+    <div class="card-padding">
+      <span>URL:
+        @if (yearsControl.value !== null && daysControl.value
+        !== null) {
+          <a
+            href="{{environment.aocUrl}}/{{yearsControl.value}}/day/{{daysControl.value}}"
+            rel="noopener noreferrer"
+            target="_blank">
+            {{ environment.aocUrl }}/{{ yearsControl.value }}/day/{{ daysControl.value }}
+          </a>
+        } @else {
+          <span class="description-warning">Select a year & day first.</span>
+        }
+      </span>
+    </div>
+  </mat-expansion-panel>
+</mat-accordion>
+
 <mat-accordion multi>
   <mat-expansion-panel [expanded]="true" [ngClass]="{
   'correct-answer': solutionCheck.part1 === true,
@@ -75,12 +99,17 @@
     </mat-expansion-panel-header>
 
     <div class="card-padding">
-      <mat-form-field>
-        <mat-label>Your answer</mat-label>
-        <input (keyup.enter)="setFilterResults(1)" [(ngModel)]="answerPart1" matInput
-               placeholder="Your answer"
-               type="number">
-      </mat-form-field>
+      <div class="input-button__container">
+        <mat-form-field>
+          <mat-label>Your answer</mat-label>
+          <input (keyup.enter)="setFilterResults(1)" [(ngModel)]="answerPart1" matInput
+                 placeholder="Your answer"
+                 type="number">
+        </mat-form-field>
+        <button (click)="setFilterResults(1)" color="primary" mat-mini-fab>
+          <mat-icon>check</mat-icon>
+        </button>
+      </div>
 
       @if (filter.showStatus) {
         <dl>
@@ -115,12 +144,17 @@
     </mat-expansion-panel-header>
 
     <div class="card-padding">
-      <mat-form-field>
-        <mat-label>Your answer</mat-label>
-        <input (keyup.enter)="setFilterResults(2)" [(ngModel)]="answerPart2" matInput
-               placeholder="Your answer"
-               type="number">
-      </mat-form-field>
+      <div class="input-button__container">
+        <mat-form-field>
+          <mat-label>Your answer</mat-label>
+          <input (keyup.enter)="setFilterResults(2)" [(ngModel)]="answerPart2" matInput
+                 placeholder="Your answer"
+                 type="number">
+        </mat-form-field>
+        <button (click)="setFilterResults(2)" color="primary" mat-mini-fab>
+          <mat-icon>check</mat-icon>
+        </button>
+      </div>
 
       @if (filter.showStatus) {
         <dl>

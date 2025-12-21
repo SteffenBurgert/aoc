@@ -70,6 +70,7 @@ export class Parser implements OnInit {
   private readonly parsingService = inject(ParsingService);
   private readonly ngZone = inject(NgZone);
   private readonly http = inject(HttpClient);
+  protected readonly environment = environment;
 
   aocSolution: WritableSignal<AoCSolution | undefined> = signal(undefined);
   kotlinImplementation: WritableSignal<string | undefined> = signal(undefined);
@@ -154,7 +155,6 @@ export class Parser implements OnInit {
     this.setDifference(part);
     this.setSolutionCheck(part);
   }
-  protected readonly environment = environment;
 
   private getCatalogue(): void {
     this.parsingService.availability$().subscribe({
