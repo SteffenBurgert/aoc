@@ -65,29 +65,6 @@
   </mat-card-content>
 </mat-card>
 
-<mat-accordion>
-  <mat-expansion-panel [expanded]="false" class="card">
-    <mat-expansion-panel-header class="mat-mdc-card-header">
-      <mat-panel-title class="mat-mdc-card-title">Advent of Code description</mat-panel-title>
-    </mat-expansion-panel-header>
-    <div class="card-padding">
-      <span>URL:
-        @if (yearsControl.value !== null && daysControl.value
-        !== null) {
-          <a
-            href="{{environment.aocUrl}}/{{yearsControl.value}}/day/{{daysControl.value}}"
-            rel="noopener noreferrer"
-            target="_blank">
-            {{ environment.aocUrl }}/{{ yearsControl.value }}/day/{{ daysControl.value }}
-          </a>
-        } @else {
-          <span class="description-warning">Select a year & day first.</span>
-        }
-      </span>
-    </div>
-  </mat-expansion-panel>
-</mat-accordion>
-
 <mat-accordion multi>
   <mat-expansion-panel [expanded]="true" [ngClass]="{
   'correct-answer': solutionCheck.part1 === true,
@@ -99,6 +76,17 @@
     </mat-expansion-panel-header>
 
     <div class="card-padding">
+      <p>Advent of Code description: @if (yearsControl.value !== null && daysControl.value
+      !== null) {
+        <a
+          href="{{environment.aocUrl}}/{{yearsControl.value}}/day/{{daysControl.value}}"
+          rel="noopener noreferrer"
+          target="_blank">
+          {{ environment.aocUrl }}/{{ yearsControl.value }}/day/{{ daysControl.value }}
+        </a>
+      } @else {
+        <span class="description-warning">Pleas select a year & day first.</span>
+      }</p>
       <div class="input-button__container">
         <mat-form-field>
           <mat-label>Your answer</mat-label>
@@ -144,6 +132,17 @@
     </mat-expansion-panel-header>
 
     <div class="card-padding">
+      <p>Advent of Code description: @if (yearsControl.value !== null && daysControl.value
+      !== null) {
+        <a
+          href="{{environment.aocUrl}}/{{yearsControl.value}}/day/{{daysControl.value}}#part2"
+          rel="noopener noreferrer"
+          target="_blank">
+          {{ environment.aocUrl }}/{{ yearsControl.value }}/day/{{ daysControl.value }}#part2
+        </a>
+      } @else {
+        <span class="description-warning">Pleas select a year & day first.</span>
+      }</p>
       <div class="input-button__container">
         <mat-form-field>
           <mat-label>Your answer</mat-label>
@@ -181,7 +180,7 @@
 
 @if (filter.implementation) {
   <mat-accordion>
-    <mat-expansion-panel [expanded]="false" class="card">
+    <mat-expansion-panel [expanded]="true" class="card">
       <mat-expansion-panel-header class="mat-mdc-card-header">
         <mat-panel-title class="mat-mdc-card-title">Implementation</mat-panel-title>
       </mat-expansion-panel-header>
@@ -197,7 +196,7 @@
         </span>
           <pre>{{ kotlinImplementation() }}</pre>
         } @else {
-          <span>Pleas select a year and day first.</span>
+          <span class="description-warning">Pleas select a year and day first.</span>
         }
       </div>
     </mat-expansion-panel>
