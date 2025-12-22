@@ -15,19 +15,7 @@ class Day9() : Day {
 
     override fun part1(lines: List<String>): Long {
         val coordinates = getCoordinates(lines)
-
-        var biggestArea: Area? = null
-        coordinates.forEachIndexed { index, coordinate ->
-            coordinates.drop(index + 1).forEach { nextCoordinate ->
-                val volume: Long =
-                    abs(coordinate.x - nextCoordinate.x + 1L) * abs(coordinate.y - nextCoordinate.y + 1L)
-                if ((biggestArea?.volume ?: Long.MIN_VALUE) < volume) {
-                    biggestArea = Area(coordinate, nextCoordinate, volume)
-                }
-            }
-        }
-
-        if (biggestArea == null) throw NullPointerException("biggest Area is null")
+        val biggestArea = findBiggestArea(coordinates)
 
         return biggestArea.volume
     }
@@ -42,6 +30,26 @@ class Day9() : Day {
             line.split(",").map(String::toInt)
                 .run { Coordinate(this[0], this[1]) }
         }
+    }
+
+    private fun findBiggestArea(coordinates: List<Coordinate>): Area {
+        var biggestArea: Area? = null
+        coordinates.forEachIndexed { index, coordinate ->
+            coordinates.drop(index + 1).forEach { nextCoordinate ->
+                val volume: Long = calculateVolume(coordinate, nextCoordinate)
+                if ((biggestArea?.volume ?: Long.MIN_VALUE) < volume) {
+                    biggestArea = Area(coordinate, nextCoordinate, volume)
+                }
+            }
+        }
+
+        if (biggestArea == null) throw NullPointerException("biggest Area is null")
+
+        return biggestArea
+    }
+
+    private fun calculateVolume(first: Coordinate, second: Coordinate): Long {
+        return abs(first.x - second.x + 1L) * abs(first.y - second.y + 1L)
     }
 }
 
