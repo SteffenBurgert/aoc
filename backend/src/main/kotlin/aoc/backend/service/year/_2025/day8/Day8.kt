@@ -15,20 +15,32 @@ class Day8() : Day {
     }
 
     override fun part1(lines: List<String>): Long {
-        val coordinates = lines.map { line ->
-            line.split(",").map(String::toInt)
-                .run { Coordinate(this[0], this[1], this[2]) }
-        }
-
-        val shortestConnections = calculateShortestConnections(coordinates)
-        val groups = findGroups(shortestConnections)
+        val coordinates = getCoordinates(lines)
+        val groups = getGroupedCoordinates(coordinates)
 
         return multiplyLargestThreeGroups(groups)
     }
 
     override fun part2(lines: List<String>): Long {
-        //TODO("Not yet implemented")
-        return 0L
+        val coordinates = getCoordinates(lines)
+        val groups = getGroupedCoordinates(coordinates).toMutableList()
+
+        addAllSingleJBoxesToGroups(coordinates, groups)
+        val largestDistance = findConnectionWithLargestDistance(groups)
+
+        return largestDistance.first.x.toLong() * largestDistance.second.x.toLong()
+    }
+
+    private fun getCoordinates(lines: List<String>): List<Coordinate> {
+        return lines.map { line ->
+            line.split(",").map(String::toInt)
+                .run { Coordinate(this[0], this[1], this[2]) }
+        }
+    }
+
+    private fun getGroupedCoordinates(coordinates: List<Coordinate>): List<List<Connection>> {
+        val shortestConnections = calculateShortestConnections(coordinates)
+        return findGroups(shortestConnections)
     }
 
     private fun calculateShortestConnections(coordinates: List<Coordinate>): MutableList<Connection> {
@@ -135,6 +147,110 @@ class Day8() : Day {
             uniqueJBox.size
         }
     }
+
+    private fun addAllSingleJBoxesToGroups(
+        coordinates: List<Coordinate>,
+        groups: MutableList<List<Connection>>
+    ) {
+        val singleJBoxes = findAllJBoxesWithoutConnection(coordinates, groups).toMutableList()
+
+        while (singleJBoxes.isNotEmpty()) {
+            val jBox = singleJBoxes.removeFirst()
+
+            val (shortestDistanceGroup, groupIndex) =
+                findGroupWithShortestDistanceToJBox(groups, jBox)
+
+            val shortestDistanceTwoJBoxes =
+                findSingleJBoxWithShortestDistanceToJBox(singleJBoxes, jBox)
+
+            connectJBoxByShortestDistance(
+                shortestDistanceGroup,
+                shortestDistanceTwoJBoxes,
+                groupIndex,
+                groups,
+                singleJBoxes
+            )
+        }
+    }
+
+    private fun findAllJBoxesWithoutConnection(
+        coordinates: List<Coordinate>,
+        groups: List<List<Connection>>
+    ): List<Coordinate> {
+        return coordinates.filter { coordinate ->
+            groups.none { group -> group.any { it.first == coordinate || it.second == coordinate } }
+        }
+    }
+
+    private fun findGroupWithShortestDistanceToJBox(
+        groups: List<List<Connection>>,
+        jBox: Coordinate
+    ): Pair<Connection?, Int> {
+        var shortestDistance: Connection? = null
+        var groupIndex = -1
+        groups.forEachIndexed { index, group ->
+            val groupCoordinates = mutableSetOf<Coordinate>()
+
+            group.forEach {
+                groupCoordinates.add(it.first)
+                groupCoordinates.add(it.second)
+            }
+
+            groupCoordinates.forEach {
+                calculateDistance(it, jBox).let { distance ->
+                    if (distance < (shortestDistance?.distance ?: Double.MAX_VALUE)) {
+                        shortestDistance = Connection(it, jBox, distance)
+                        groupIndex = index
+                    }
+                }
+            }
+        }
+
+        return Pair(shortestDistance, groupIndex)
+    }
+
+    private fun findSingleJBoxWithShortestDistanceToJBox(
+        singleJBoxes: List<Coordinate>,
+        jBox: Coordinate
+    ): Connection? {
+        var shortestDistance: Connection? = null
+
+        singleJBoxes.forEach {
+            calculateDistance(it, jBox).let { distance ->
+                if (distance < (shortestDistance?.distance ?: Double.MAX_VALUE)) {
+                    shortestDistance = Connection(it, jBox, distance)
+                }
+            }
+        }
+
+        return shortestDistance
+    }
+
+    private fun connectJBoxByShortestDistance(
+        shortestDistanceGroup: Connection?,
+        shortestDistanceTwoJBoxes: Connection?,
+        groupIndex: Int,
+        groups: MutableList<List<Connection>>,
+        singleJBoxes: MutableList<Coordinate>
+    ) {
+        require(shortestDistanceGroup != null || shortestDistanceTwoJBoxes != null) { "Both shortestDistances are null" }
+
+        if (shortestDistanceGroup != null && shortestDistanceGroup.distance <
+            (shortestDistanceTwoJBoxes?.distance ?: Double.MAX_VALUE)
+        ) {
+            val newGroup: MutableList<Connection> = groups.removeAt(groupIndex).toMutableList()
+            newGroup.add(shortestDistanceGroup)
+
+            groups.add(newGroup)
+        } else if (shortestDistanceTwoJBoxes != null) {
+            groups.add(listOf(shortestDistanceTwoJBoxes))
+            singleJBoxes.remove(shortestDistanceTwoJBoxes.first)
+        }
+    }
+
+    private fun findConnectionWithLargestDistance(groups: List<List<Connection>>): Connection {
+        return groups.flatten().maxBy { it.distance }
+    }
 }
 
 data class Coordinate(
@@ -146,5 +262,5 @@ data class Coordinate(
 data class Connection(
     val first: Coordinate,
     val second: Coordinate,
-    val distance: Double
+    val distance: Double,
 )
