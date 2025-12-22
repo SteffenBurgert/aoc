@@ -25,10 +25,10 @@ class Day8() : Day {
         val coordinates = getCoordinates(lines)
         val groups = getGroupedCoordinates(coordinates).toMutableList()
 
-        addAllSingleJBoxesToGroupes(coordinates, groups)
-        val max = findConnectionWithLargestDistance(groups)
+        addAllSingleJBoxesToGroups(coordinates, groups)
+        val largestDistance = findConnectionWithLargestDistance(groups)
 
-        return max.first.x.toLong() * max.second.x.toLong()
+        return largestDistance.first.x.toLong() * largestDistance.second.x.toLong()
     }
 
     private fun getCoordinates(lines: List<String>): List<Coordinate> {
@@ -148,16 +148,7 @@ class Day8() : Day {
         }
     }
 
-    private fun findAllJBoxesWithoutConnection(
-        coordinates: List<Coordinate>,
-        groups: List<List<Connection>>
-    ): List<Coordinate> {
-        return coordinates.filter { coordinate ->
-            groups.none { group -> group.any { it.first == coordinate || it.second == coordinate } }
-        }
-    }
-
-    private fun addAllSingleJBoxesToGroupes(
+    private fun addAllSingleJBoxesToGroups(
         coordinates: List<Coordinate>,
         groups: MutableList<List<Connection>>
     ) {
@@ -179,6 +170,15 @@ class Day8() : Day {
                 groups,
                 singleJBoxes
             )
+        }
+    }
+
+    private fun findAllJBoxesWithoutConnection(
+        coordinates: List<Coordinate>,
+        groups: List<List<Connection>>
+    ): List<Coordinate> {
+        return coordinates.filter { coordinate ->
+            groups.none { group -> group.any { it.first == coordinate || it.second == coordinate } }
         }
     }
 
