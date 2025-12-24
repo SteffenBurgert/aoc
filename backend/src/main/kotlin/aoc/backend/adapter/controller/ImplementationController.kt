@@ -1,5 +1,6 @@
 package aoc.backend.adapter.controller
 
+import aoc.backend.adapter.dto.ImplementationResultDto
 import aoc.backend.model.Language
 import aoc.backend.service.file.SourceFileExtractor
 import org.springframework.http.ResponseEntity
@@ -15,18 +16,18 @@ class ImplementationController(
 ) {
 
     @GetMapping("/{language}/{year}/{day}")
-    fun getImplementation(@PathVariable language: Language, @PathVariable year: Int, @PathVariable day: Int): ResponseEntity<String> {
+    fun getImplementation(@PathVariable language: Language, @PathVariable year: Int, @PathVariable day: Int): ResponseEntity<ImplementationResultDto> {
         return try {
             when (language) {
                 Language.KOTLIN -> {
-                    ResponseEntity.ok(sourceFileExtractor.getResourceFileAsString("sourceFiles/kotlin/_$year/day$day/Day$day.kt"))
+                    ResponseEntity.ok(ImplementationResultDto(true,sourceFileExtractor.getResourceFileAsString("sourceFiles/kotlin/_$year/day$day/Day$day.kt")))
                 }
                 Language.GO -> {
-                    return ResponseEntity.ok(sourceFileExtractor.getResourceFileAsString("sourceFiles/go/_$year/day$day.go"))
+                    return ResponseEntity.ok(ImplementationResultDto(true,sourceFileExtractor.getResourceFileAsString("sourceFiles/go/_$year/day$day.go")))
                 }
             }
         } catch (_: IllegalArgumentException) {
-            ResponseEntity.ok("No $language Implementation for this day yet.")
+            ResponseEntity.ok(ImplementationResultDto(false,"No $language Implementation for this day yet."))
         }
     }
 }

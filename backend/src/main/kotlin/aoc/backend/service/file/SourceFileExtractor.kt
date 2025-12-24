@@ -7,6 +7,7 @@ import java.io.InputStream
 @Service
 class SourceFileExtractor {
 
+    // TODO: Add cache
     fun getResourceFileAsString(fileName: String): String {
         val inputStream = getResourceFileAsInputStream(fileName)
         if (inputStream != null) {

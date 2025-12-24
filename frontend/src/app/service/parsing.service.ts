@@ -5,6 +5,7 @@ import {AoCSolution} from '../module/aoc-solution.module';
 import {environment} from '../../environment/environment';
 import {Years} from '../module/year.module';
 import {Language} from '../module/language.module';
+import {ImplementationResultModule} from '../module/implementation-result-module';
 
 @Injectable({providedIn: 'root'})
 export class ParsingService {
@@ -20,8 +21,8 @@ export class ParsingService {
     return this.http.post<AoCSolution>(this.apiServerUrl + `upload/${year}/${day}`, formData);
   }
 
-  public getImplementation$(language: Language, year: number, day: number): Observable<string> {
-    return this.http.get(this.apiServerUrl + `implementation/${Language[language]}/${year}/${day}`, {responseType: 'text'});
+  public getImplementation$(language: Language, year: number, day: number): Observable<ImplementationResultModule> {
+    return this.http.get<ImplementationResultModule>(this.apiServerUrl + `implementation/${Language[language]}/${year}/${day}`);
   }
 
 }

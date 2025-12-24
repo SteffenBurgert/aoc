@@ -204,22 +204,40 @@
           <span class="description-warning">Pleas select a year and day first.</span>
         }
       </div>
+            @if (yearsControl.value !== null && daysControl.value !== null && kotlinImplementation() !== undefined) {
+              @if (kotlinImplementation()?.implemented) {
+                <span>Link to:
+                  <a
+                      href="{{environment.githubUrl}}/{{environment.githubPathToYear}}/_{{yearsControl.value}}/day{{daysControl.value}}/Day{{daysControl.value}}.kt"
+                      target="_blank"
+                      rel="noopener noreferrer">
+                    AoC_Year_{{ yearsControl.value }}_Day_{{ daysControl.value }}
+                  </a>
+                </span>
+              }
+              <pre>{{ kotlinImplementation()?.implementation }}</pre>
+            } @else {
+              <span>Please select a year and day first.</span>
+            }
+          </div>
         </mat-tab>
         <mat-tab>
           <ng-template mat-tab-label>
             <mat-icon svgIcon="go-icon" aria-hidden="false" aria-label="Go Icon" class="language-tab-icon"></mat-icon>
           </ng-template>
           <div class="card-padding">
-            @if (yearsControl.value !== null && daysControl.value !== null) {
-              <span>Link to:
-          <a
-            href="{{environment.githubUrl}}/{{environment.githubPathToYear}}/_{{yearsControl.value}}/day{{daysControl.value}}/Day{{daysControl.value}}.kt"
-            target="_blank"
-            rel="noopener noreferrer">
-          AoC_Year_{{ yearsControl.value }}_Day_{{ daysControl.value }}
-        </a>
-        </span>
-              <pre>{{ goImplementation() }}</pre>
+            @if (yearsControl.value !== null && daysControl.value !== null && goImplementation() !== undefined) {
+              @if (goImplementation()?.implemented) {
+                <span>Link to:
+                  <a
+                      href="{{environment.githubUrl}}/blob/go-aoc/year/_{{yearsControl.value}}/day{{daysControl.value}}.go"
+                      target="_blank"
+                      rel="noopener noreferrer">
+                    AoC_Year_{{ yearsControl.value }}_Day_{{ daysControl.value }}
+                  </a>
+                </span>
+              }
+              <pre>{{ goImplementation()?.implementation }}</pre>
             } @else {
               <span>Please select a year and day first.</span>
             }

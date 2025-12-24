@@ -17,11 +17,12 @@ import {FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angula
 import {Years} from '../../module/year.module';
 import {MatCheckbox} from '@angular/material/checkbox';
 import {SolutionCheckPipe} from '../../pipe/solution-check.pipe';
-import {NgClass, NgOptimizedImage} from '@angular/common';
+import {NgClass, NgIf, NgOptimizedImage} from '@angular/common';
 import {environment} from '../../../environment/environment';
 import {MatTab, MatTabGroup, MatTabLabel} from '@angular/material/tabs';
 import {DomSanitizer} from '@angular/platform-browser';
 import {Language} from '../../module/language.module';
+import {ImplementationResultModule} from '../../module/implementation-result-module';
 
 export interface Filter {
   solution: boolean;
@@ -68,7 +69,8 @@ export enum Part {
     MatTabGroup,
     MatTab,
     MatTabLabel,
-    NgOptimizedImage
+    NgOptimizedImage,
+    NgIf
   ],
   templateUrl: './parser.html',
   styleUrl: './parser.scss',
@@ -93,8 +95,8 @@ export class Parser implements OnInit {
   protected readonly environment = environment;
 
   aocSolution: WritableSignal<AoCSolution | undefined> = signal(undefined);
-  kotlinImplementation: WritableSignal<string | undefined> = signal(undefined);
-  goImplementation: WritableSignal<string | undefined> = signal(undefined);
+  kotlinImplementation: WritableSignal<ImplementationResultModule| undefined> = signal(undefined);
+  goImplementation: WritableSignal<ImplementationResultModule | undefined> = signal(undefined);
 
   yearsControl: FormControl<number | null> = new FormControl(null, Validators.required);
   daysControl: FormControl<number | null> = new FormControl(null, Validators.required);
@@ -270,14 +272,11 @@ export class Parser implements OnInit {
     if (this.yearsControl.value === null || this.daysControl.value === null) {
       return;
     }
-    console.log(Language.KOTLIN)
     // Load kotlin implementation
     this.parsingService
     .getImplementation$(Language.KOTLIN, this.yearsControl.value, this.daysControl.value)
     .subscribe({
-      next: (implementation: string) => {
-        console.log("Retrieved implementation:");
-        console.log(implementation);
+      next: (implementation: ImplementationResultModule) => {
         this.ngZone.run(() => {
           this.kotlinImplementation.set(implementation);
         })
@@ -296,9 +295,7 @@ export class Parser implements OnInit {
     this.parsingService
     .getImplementation$(Language.GO, this.yearsControl.value, this.daysControl.value)
     .subscribe({
-      next: (implementation: string) => {
-        console.log("Retrieved implementation:");
-        console.log(implementation);
+      next: (implementation: ImplementationResultModule) => {
         this.ngZone.run(() => {
           this.goImplementation.set(implementation);
         })
