@@ -63,3 +63,26 @@ kotlin {
 tasks.withType<Test> {
     useJUnitPlatform()
 }
+
+val copySourceFiles by tasks.registering(Copy::class) {
+    val resourcesTarget = layout.projectDirectory.dir("src/main/resources/sourceFiles")
+
+    from("src/main/kotlin/aoc/backend/service/year") {
+        include("_*/**/*.kt")
+        into("kotlin")
+    }
+
+    val goYearDir = projectDir.resolve("../go-aoc/year")
+    if (goYearDir.exists()) {
+        from(goYearDir) {
+            include("_*/**/*.go")
+            into("go")
+        }
+    }
+
+    into(resourcesTarget)
+}
+
+tasks.named("processResources") {
+    dependsOn(copySourceFiles)
+}
