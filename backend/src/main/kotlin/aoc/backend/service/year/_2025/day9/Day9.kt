@@ -15,18 +15,17 @@ class Day9() : Day {
 
     override fun part1(lines: List<String>): Long {
         val coordinates = getCoordinates(lines)
-        val biggestArea = findBiggestArea(coordinates)
+        val biggestArea = calculateAreasSortedByVolumeDesc(coordinates).first()
 
         return biggestArea.volume
     }
 
     override fun part2(lines: List<String>): Long {
         val coordinates = getCoordinates(lines)
-        val areas = calculateAreasSortedByVolume(coordinates)
+        val areas = calculateAreasSortedByVolumeDesc(coordinates)
+        val border = getBordersOfShape(coordinates)
 
-        getBordersOfShape(coordinates)
-
-        return -1L
+        return biggestAreaInShape(areas, border).volume
     }
 
     private fun getCoordinates(lines: List<String>): List<Coordinate> {
@@ -36,125 +35,52 @@ class Day9() : Day {
         }
     }
 
-    private fun findBiggestArea(coordinates: List<Coordinate>): Area {
-        var biggestArea: Area? = null
-        coordinates.forEachIndexed { index, coordinate ->
-            coordinates.drop(index + 1).forEach { nextCoordinate ->
-                val volume: Long = calculateVolume(coordinate, nextCoordinate)
-                if ((biggestArea?.volume ?: Long.MIN_VALUE) < volume) {
-                    biggestArea = Area(coordinate, nextCoordinate, volume)
-                }
-            }
-        }
-
-        if (biggestArea == null) throw NullPointerException("biggest Area is null")
-
-        return biggestArea
-    }
-
-    private fun calculateAreasSortedByVolume(coordinates: List<Coordinate>): List<Area> {
+    private fun calculateAreasSortedByVolumeDesc(coordinates: List<Coordinate>): List<Area> {
         return coordinates.flatMapIndexed { index, coordinate ->
             coordinates.drop(index + 1).map { nextCoordinate ->
                 val volume: Long = calculateVolume(coordinate, nextCoordinate)
                 Area(coordinate, nextCoordinate, volume)
             }
-        }.sortedBy { it.volume }
+        }.sortedByDescending { it.volume }
     }
 
     private fun calculateVolume(first: Coordinate, second: Coordinate): Long {
         return abs(first.x - second.x + 1L) * abs(first.y - second.y + 1L)
     }
 
-    private fun getBordersOfShape(coordinates: List<Coordinate>) {
+    private fun getBordersOfShape(coordinates: List<Coordinate>): List<Connection> {
         val sortedCoordinates =
             coordinates.sortedWith(compareBy<Coordinate> { it.y }.thenBy { it.x })
 
         val connections = mutableListOf<Connection>()
 
         sortedCoordinates.forEach { coordinate ->
-            val connectionsToCoordinate = connectionsToCoordinate(connections, coordinate)
-            if (connectionsToCoordinate.size == 2) return@forEach
-
-            when (connectionsToCoordinate.size) {
-                0 -> {
-                    val rightNeighbour = rightNeighbour(sortedCoordinates, coordinate)
-                    val belowNeighbour = belowNeighbour(sortedCoordinates, coordinate)
-
-                    require(rightNeighbour != null && belowNeighbour != null) {
-                        "At least one neighbours is null: right: $rightNeighbour / below: $belowNeighbour"
-                    }
-
-                    connections.add(
-                        Connection(
-                            coordinate,
-                            rightNeighbour,
-                            Direction.HORIZONTAL,
-                            IntRange(coordinate.x, rightNeighbour.x)
-                        )
-                    )
-                    connections.add(
-                        Connection(
-                            coordinate,
-                            belowNeighbour,
-                            Direction.VERTICAL,
-                            IntRange(coordinate.y, belowNeighbour.y)
-                        )
-                    )
-                }
-
-                1 -> {
-                    when (connectionsToCoordinate.first().direction) {
-                        Direction.HORIZONTAL -> {
-                            val belowNeighbour = belowNeighbour(sortedCoordinates, coordinate)
-
-                            require(belowNeighbour != null) {
-                                "Right neighbours is null"
-                            }
-
-                            connections.add(
-                                Connection(
-                                    coordinate,
-                                    belowNeighbour,
-                                    Direction.VERTICAL,
-                                    IntRange(coordinate.y, belowNeighbour.y)
-                                )
-                            )
-                        }
-
-                        Direction.VERTICAL -> {
-                            val rightNeighbour = rightNeighbour(sortedCoordinates, coordinate)
-
-                            require(rightNeighbour != null) {
-                                "Below neighbours is null"
-                            }
-
-                            connections.add(
-                                Connection(
-                                    coordinate,
-                                    rightNeighbour,
-                                    Direction.HORIZONTAL,
-                                    IntRange(coordinate.x, rightNeighbour.x)
-                                )
-                            )
-                        }
-                    }
-                }
-            }
+            getBorderForCoordinate(connections, coordinate, sortedCoordinates)
         }
 
-        connections.forEach { println(it) }
+        return connections
     }
 
-    private fun rightNeighbour(connections: List<Coordinate>, coordinate: Coordinate): Coordinate? {
-        return connections
-            .filter { it.y == coordinate.y && it.x > coordinate.x }
-            .minByOrNull { it.x }
-    }
+    private fun getBorderForCoordinate(
+        connections: MutableList<Connection>,
+        coordinate: Coordinate,
+        sortedCoordinates: List<Coordinate>
+    ) {
+        val connectionsToCoordinate = connectionsToCoordinate(connections, coordinate)
 
-    private fun belowNeighbour(connections: List<Coordinate>, coordinate: Coordinate): Coordinate? {
-        return connections
-            .filter { it.x == coordinate.x && it.y > coordinate.y }
-            .minByOrNull { it.y }
+        when (connectionsToCoordinate.size) {
+            0 -> {
+                addBelowNeighbour(sortedCoordinates, coordinate, connections)
+                addRightNeighbour(sortedCoordinates, coordinate, connections)
+            }
+
+            1 -> addConnectionDependingOnDirection(
+                connectionsToCoordinate.first(),
+                sortedCoordinates,
+                coordinate,
+                connections
+            )
+        }
     }
 
     private fun connectionsToCoordinate(
@@ -174,6 +100,157 @@ class Day9() : Day {
         require(results.size <= 2) { "To many connections to one point" }
 
         return results
+    }
+
+    private fun addRightNeighbour(
+        coordinates: List<Coordinate>,
+        coordinate: Coordinate,
+        connections: MutableList<Connection>
+    ) {
+        val rightNeighbour = rightNeighbour(coordinates, coordinate)
+
+        require(rightNeighbour != null) { "Right neighbours is null" }
+
+        connections.add(Connection(coordinate, rightNeighbour, Direction.HORIZONTAL))
+    }
+
+    private fun rightNeighbour(connections: List<Coordinate>, coordinate: Coordinate): Coordinate? {
+        return connections
+            .filter { it.y == coordinate.y && it.x > coordinate.x }
+            .minByOrNull { it.x }
+    }
+
+    private fun addBelowNeighbour(
+        coordinates: List<Coordinate>,
+        coordinate: Coordinate,
+        connections: MutableList<Connection>
+    ) {
+        val belowNeighbour = belowNeighbour(coordinates, coordinate)
+
+        require(belowNeighbour != null) { "Below neighbours is null" }
+
+        connections.add(Connection(coordinate, belowNeighbour, Direction.VERTICAL))
+    }
+
+    private fun belowNeighbour(connections: List<Coordinate>, coordinate: Coordinate): Coordinate? {
+        return connections
+            .filter { it.x == coordinate.x && it.y > coordinate.y }
+            .minByOrNull { it.y }
+    }
+
+    private fun addConnectionDependingOnDirection(
+        connectionsToCoordinate: Connection,
+        sortedCoordinates: List<Coordinate>,
+        coordinate: Coordinate,
+        connections: MutableList<Connection>
+    ) {
+        when (connectionsToCoordinate.direction) {
+            Direction.HORIZONTAL -> {
+                addBelowNeighbour(sortedCoordinates, coordinate, connections)
+            }
+
+            Direction.VERTICAL -> {
+                addRightNeighbour(sortedCoordinates, coordinate, connections)
+            }
+        }
+    }
+
+    private fun biggestAreaInShape(areas: List<Area>, border: List<Connection>): Area {
+        val horizontalConnections = border.filter { it.direction == Direction.HORIZONTAL }
+        val verticalConnection = border.filter { it.direction == Direction.VERTICAL }
+
+        areas.forEach { area ->
+            val rectangle = defineRectangle(area)
+
+            if (!validateHorizontalBorders(rectangle, horizontalConnections, verticalConnection)) {
+                return@forEach
+            }
+
+            if (!validateVerticalBorders(rectangle, horizontalConnections, verticalConnection)) {
+                return@forEach
+            }
+
+            return area
+        }
+
+        throw NoSuchElementException("There is no suitable area")
+    }
+
+    private fun defineRectangle(area: Area): Rectangle {
+        val left = minOf(area.first.x, area.second.x)
+        val right = maxOf(area.first.x, area.second.x)
+        val bottom = maxOf(area.first.y, area.second.y)
+        val top = minOf(area.first.y, area.second.y)
+
+        return Rectangle(
+            topLeft = Coordinate(left, top),
+            topRight = Coordinate(right, top),
+            bottomLeft = Coordinate(left, bottom),
+            bottomRight = Coordinate(right, bottom),
+        )
+    }
+
+    private fun validateHorizontalBorders(
+        rectangle: Rectangle,
+        horizontalConnections: List<Connection>,
+        verticalConnection: List<Connection>
+    ): Boolean {
+        var topLeftStart = rectangle.topLeft
+        var validatedHorizontalTop = false
+        do {
+            val topLeftConnection =
+                horizontalConnections.find { it.first == topLeftStart } ?: verticalConnection.find {
+                    it.first.x == topLeftStart.x && it.first.y < topLeftStart.y
+                }
+
+            if (topLeftConnection == null) return false
+
+            if (topLeftConnection.second.x < rectangle.topRight.x) {
+                val newConnection =
+                    verticalConnection.find { it.second == topLeftConnection.second }
+
+                if (newConnection == null) return false
+
+                topLeftStart = newConnection.first
+            } else {
+                validatedHorizontalTop = true
+            }
+        } while (!validatedHorizontalTop)
+
+        var bottomLeftStart = rectangle.bottomLeft
+        var validatedHorizontalBottom = false
+        do {
+            val bottomLeftConnection =
+                horizontalConnections.find { it.first == bottomLeftStart }
+                    ?: verticalConnection.find {
+                        it.first.x == bottomLeftStart.x && it.first.y > bottomLeftStart.y
+                    }
+
+            if (bottomLeftConnection == null) return false
+
+            if (bottomLeftConnection.second.x < rectangle.bottomRight.x) {
+                val newConnection =
+                    verticalConnection.find { it.second == bottomLeftConnection.second }
+
+                if (newConnection == null) return false
+
+                bottomLeftStart = newConnection.first
+            } else {
+                validatedHorizontalBottom = true
+            }
+        } while (!validatedHorizontalBottom)
+
+        return true
+    }
+
+    private fun validateVerticalBorders(
+        rectangle: Rectangle,
+        horizontalConnections: List<Connection>,
+        verticalConnection: List<Connection>
+    ): Boolean {
+        validateHorizontalBorders(rectangle, horizontalConnections, verticalConnection)
+
+        return true
     }
 }
 
@@ -197,5 +274,11 @@ data class Connection(
     val first: Coordinate,
     val second: Coordinate,
     val direction: Direction,
-    val range: IntRange,
+)
+
+data class Rectangle(
+    val topLeft: Coordinate,
+    val topRight: Coordinate,
+    val bottomLeft: Coordinate,
+    val bottomRight: Coordinate,
 )
