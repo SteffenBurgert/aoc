@@ -70,8 +70,8 @@ class Day9() : Day {
 
         when (connectionsToCoordinate.size) {
             0 -> {
-                addBelowNeighbour(sortedCoordinates, coordinate, connections)
                 addRightNeighbour(sortedCoordinates, coordinate, connections)
+                addBelowNeighbour(sortedCoordinates, coordinate, connections)
             }
 
             1 -> addConnectionDependingOnDirection(
@@ -80,6 +80,18 @@ class Day9() : Day {
                 coordinate,
                 connections
             )
+        }
+    }
+
+    private fun addConnectionDependingOnDirection(
+        connectionsToCoordinate: Connection,
+        sortedCoordinates: List<Coordinate>,
+        coordinate: Coordinate,
+        connections: MutableList<Connection>
+    ) {
+        when (connectionsToCoordinate.direction) {
+            Direction.HORIZONTAL -> addBelowNeighbour(sortedCoordinates, coordinate, connections)
+            Direction.VERTICAL -> addRightNeighbour(sortedCoordinates, coordinate, connections)
         }
     }
 
@@ -107,14 +119,17 @@ class Day9() : Day {
         coordinate: Coordinate,
         connections: MutableList<Connection>
     ) {
-        val rightNeighbour = rightNeighbour(coordinates, coordinate)
+        val rightNeighbour = findRightNeighbour(coordinates, coordinate)
 
         require(rightNeighbour != null) { "Right neighbours is null" }
 
         connections.add(Connection(coordinate, rightNeighbour, Direction.HORIZONTAL))
     }
 
-    private fun rightNeighbour(connections: List<Coordinate>, coordinate: Coordinate): Coordinate? {
+    private fun findRightNeighbour(
+        connections: List<Coordinate>,
+        coordinate: Coordinate
+    ): Coordinate? {
         return connections
             .filter { it.y == coordinate.y && it.x > coordinate.x }
             .minByOrNull { it.x }
@@ -125,34 +140,20 @@ class Day9() : Day {
         coordinate: Coordinate,
         connections: MutableList<Connection>
     ) {
-        val belowNeighbour = belowNeighbour(coordinates, coordinate)
+        val belowNeighbour = findBelowNeighbour(coordinates, coordinate)
 
         require(belowNeighbour != null) { "Below neighbours is null" }
 
         connections.add(Connection(coordinate, belowNeighbour, Direction.VERTICAL))
     }
 
-    private fun belowNeighbour(connections: List<Coordinate>, coordinate: Coordinate): Coordinate? {
+    private fun findBelowNeighbour(
+        connections: List<Coordinate>,
+        coordinate: Coordinate
+    ): Coordinate? {
         return connections
             .filter { it.x == coordinate.x && it.y > coordinate.y }
             .minByOrNull { it.y }
-    }
-
-    private fun addConnectionDependingOnDirection(
-        connectionsToCoordinate: Connection,
-        sortedCoordinates: List<Coordinate>,
-        coordinate: Coordinate,
-        connections: MutableList<Connection>
-    ) {
-        when (connectionsToCoordinate.direction) {
-            Direction.HORIZONTAL -> {
-                addBelowNeighbour(sortedCoordinates, coordinate, connections)
-            }
-
-            Direction.VERTICAL -> {
-                addRightNeighbour(sortedCoordinates, coordinate, connections)
-            }
-        }
     }
 
     private fun biggestAreaInShape(areas: List<Area>, border: List<Connection>): Area {
@@ -166,11 +167,11 @@ class Day9() : Day {
                 return@forEach
             }
 
-            if (validateHorizontalBorders(rectangle, horizontalConnections)) {
+            if (anyHorizontalConnectionThroughArea(rectangle, horizontalConnections)) {
                 return@forEach
             }
 
-            if (validateVerticalBorders(rectangle, verticalConnection)) {
+            if (anyVerticalConnectionThroughArea(rectangle, verticalConnection)) {
                 return@forEach
             }
 
@@ -203,7 +204,7 @@ class Day9() : Day {
         }
     }
 
-    private fun validateHorizontalBorders(
+    private fun anyHorizontalConnectionThroughArea(
         rectangle: Rectangle,
         horizontalConnections: List<Connection>,
     ): Boolean {
@@ -217,7 +218,7 @@ class Day9() : Day {
         }
     }
 
-    private fun validateVerticalBorders(
+    private fun anyVerticalConnectionThroughArea(
         rectangle: Rectangle,
         verticalConnection: List<Connection>
     ): Boolean {
