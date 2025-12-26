@@ -45,7 +45,7 @@ class Day9() : Day {
     }
 
     private fun calculateVolume(first: Coordinate, second: Coordinate): Long {
-        return abs(first.x - second.x + 1L) * abs(first.y - second.y + 1L)
+        return (abs(first.x - second.x) + 1L) * (abs(first.y - second.y) + 1L)
     }
 
     private fun getBordersOfShape(coordinates: List<Coordinate>): List<Connection> {
@@ -162,11 +162,15 @@ class Day9() : Day {
         areas.forEach { area ->
             val rectangle = defineRectangle(area)
 
-            if (!validateHorizontalBorders(rectangle, horizontalConnections, verticalConnection)) {
+            if (anyCoordinateInArea(border, rectangle)) {
                 return@forEach
             }
 
-            if (!validateVerticalBorders(rectangle, horizontalConnections, verticalConnection)) {
+            if (validateHorizontalBorders(rectangle, horizontalConnections)) {
+                return@forEach
+            }
+
+            if (validateVerticalBorders(rectangle, verticalConnection)) {
                 return@forEach
             }
 
@@ -190,67 +194,41 @@ class Day9() : Day {
         )
     }
 
+    private fun anyCoordinateInArea(border: List<Connection>, rectangle: Rectangle): Boolean {
+        return border.any {
+            (it.first.x > rectangle.topLeft.x && it.first.x < rectangle.topRight.x
+                    && it.first.y > rectangle.topLeft.y && it.first.y < rectangle.bottomLeft.y)
+                    || (it.second.x > rectangle.topLeft.x && it.second.x < rectangle.topRight.x
+                    && it.second.y > rectangle.topLeft.y && it.second.y < rectangle.bottomLeft.y)
+        }
+    }
+
     private fun validateHorizontalBorders(
         rectangle: Rectangle,
         horizontalConnections: List<Connection>,
-        verticalConnection: List<Connection>
     ): Boolean {
-        var topLeftStart = rectangle.topLeft
-        var validatedHorizontalTop = false
-        do {
-            val topLeftConnection =
-                horizontalConnections.find { it.first == topLeftStart } ?: verticalConnection.find {
-                    it.first.x == topLeftStart.x && it.first.y < topLeftStart.y
-                }
+        val coordinatesOnYLevelOfArea = horizontalConnections.filter {
+            (it.first.y > rectangle.topLeft.y && it.first.y < rectangle.bottomLeft.y)
+                    || (it.second.y > rectangle.topLeft.y && it.second.y < rectangle.bottomLeft.y)
+        }
 
-            if (topLeftConnection == null) return false
-
-            if (topLeftConnection.second.x < rectangle.topRight.x) {
-                val newConnection =
-                    verticalConnection.find { it.second == topLeftConnection.second }
-
-                if (newConnection == null) return false
-
-                topLeftStart = newConnection.first
-            } else {
-                validatedHorizontalTop = true
-            }
-        } while (!validatedHorizontalTop)
-
-        var bottomLeftStart = rectangle.bottomLeft
-        var validatedHorizontalBottom = false
-        do {
-            val bottomLeftConnection =
-                horizontalConnections.find { it.first == bottomLeftStart }
-                    ?: verticalConnection.find {
-                        it.first.x == bottomLeftStart.x && it.first.y > bottomLeftStart.y
-                    }
-
-            if (bottomLeftConnection == null) return false
-
-            if (bottomLeftConnection.second.x < rectangle.bottomRight.x) {
-                val newConnection =
-                    verticalConnection.find { it.second == bottomLeftConnection.second }
-
-                if (newConnection == null) return false
-
-                bottomLeftStart = newConnection.first
-            } else {
-                validatedHorizontalBottom = true
-            }
-        } while (!validatedHorizontalBottom)
-
-        return true
+        return coordinatesOnYLevelOfArea.any {
+            it.first.x <= rectangle.topLeft.x && it.second.x >= rectangle.topRight.x
+        }
     }
 
     private fun validateVerticalBorders(
         rectangle: Rectangle,
-        horizontalConnections: List<Connection>,
         verticalConnection: List<Connection>
     ): Boolean {
-        validateHorizontalBorders(rectangle, horizontalConnections, verticalConnection)
+        val coordinatesOnXLevelOfArea = verticalConnection.filter {
+            (it.first.x > rectangle.topLeft.x && it.first.x < rectangle.topRight.x)
+                    && (it.second.x > rectangle.topLeft.x && it.second.x < rectangle.topRight.x)
+        }
 
-        return true
+        return coordinatesOnXLevelOfArea.any {
+            it.first.y <= rectangle.topRight.y && it.second.y >= rectangle.bottomLeft.y
+        }
     }
 }
 
