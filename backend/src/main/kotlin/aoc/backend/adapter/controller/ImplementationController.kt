@@ -27,7 +27,7 @@ class ImplementationController(
                 }
             }
         } catch (_: IllegalArgumentException) {
-            ResponseEntity.ok(ImplementationResultDto(false,"No $language Implementation for this day yet."))
+            ResponseEntity.ok(ImplementationResultDto(false,"No $language implementation for this day yet."))
         }
     }
 }

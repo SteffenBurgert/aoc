@@ -17,7 +17,7 @@ import {FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angula
 import {Years} from '../../module/year.module';
 import {MatCheckbox} from '@angular/material/checkbox';
 import {SolutionCheckPipe} from '../../pipe/solution-check.pipe';
-import {NgClass, NgIf, NgOptimizedImage} from '@angular/common';
+import {NgClass, NgOptimizedImage} from '@angular/common';
 import {environment} from '../../../environment/environment';
 import {MatTab, MatTabGroup, MatTabLabel} from '@angular/material/tabs';
 import {DomSanitizer} from '@angular/platform-browser';
@@ -69,8 +69,6 @@ export enum Part {
     MatTabGroup,
     MatTab,
     MatTabLabel,
-    NgOptimizedImage,
-    NgIf
   ],
   templateUrl: './parser.html',
   styleUrl: './parser.scss',

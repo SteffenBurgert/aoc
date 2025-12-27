@@ -190,20 +190,6 @@
             <mat-icon svgIcon="kotlin-icon" aria-hidden="false" aria-label="Go Icon" class="language-tab-icon"></mat-icon>
           </ng-template>
           <div class="card-padding">
-            @if (yearsControl.value !== null && daysControl.value !== null) {
-              <span>Link to:
-          <a
-            href="{{environment.githubUrl}}/{{environment.githubPathToYear}}/_{{yearsControl.value}}/day{{daysControl.value}}/Day{{daysControl.value}}.kt"
-            target="_blank"
-            rel="noopener noreferrer">
-          AoC_Year_{{ yearsControl.value }}_Day_{{ daysControl.value }}
-        </a>
-        </span>
-          <pre>{{ kotlinImplementation() }}</pre>
-        } @else {
-          <span class="description-warning">Pleas select a year and day first.</span>
-        }
-      </div>
             @if (yearsControl.value !== null && daysControl.value !== null && kotlinImplementation() !== undefined) {
               @if (kotlinImplementation()?.implemented) {
                 <span>Link to:
