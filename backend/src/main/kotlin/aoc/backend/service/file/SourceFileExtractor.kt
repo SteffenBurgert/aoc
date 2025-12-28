@@ -10,7 +10,7 @@ class SourceFileExtractor {
     // TODO: Add cache
     fun getResourceFileAsString(fileName: String): String {
         return getResourceFileAsInputStream(fileName).use { inputStream ->
-            if (inputStream == null) throw IllegalArgumentException("File not found: $fileName")
+            require(inputStream != null) { "File not found: $fileName" }
             BufferedReader(inputStream.reader()).use {
                 it.readText()
             }
