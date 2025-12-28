@@ -187,7 +187,7 @@
       <mat-tab-group animationDuration="0ms">
         <mat-tab>
           <ng-template mat-tab-label>
-            <mat-icon svgIcon="kotlin-icon" aria-hidden="false" aria-label="Go Icon" class="language-tab-icon"></mat-icon>
+            <mat-icon svgIcon="kotlin-icon" aria-hidden="false" aria-label="Kotlin icon" class="language-tab-icon"></mat-icon>
           </ng-template>
           <div class="card-padding">
             @if (yearsControl.value !== null && daysControl.value !== null && kotlinImplementation() !== undefined) {
@@ -203,13 +203,13 @@
               }
               <pre>{{ kotlinImplementation()?.implementation }}</pre>
             } @else {
-              <span>Please select a year and day first.</span>
+              <span class="description-warning">Please select a year and day first.</span>
             }
           </div>
         </mat-tab>
         <mat-tab>
           <ng-template mat-tab-label>
-            <mat-icon svgIcon="go-icon" aria-hidden="false" aria-label="Go Icon" class="language-tab-icon"></mat-icon>
+            <mat-icon svgIcon="go-icon" aria-hidden="false" aria-label="Go icon" class="language-tab-icon"></mat-icon>
           </ng-template>
           <div class="card-padding">
             @if (yearsControl.value !== null && daysControl.value !== null && goImplementation() !== undefined) {
@@ -225,7 +225,7 @@
               }
               <pre>{{ goImplementation()?.implementation }}</pre>
             } @else {
-              <span>Please select a year and day first.</span>
+              <span class="description-warning">Please select a year and day first.</span>
             }
           </div>
         </mat-tab>
