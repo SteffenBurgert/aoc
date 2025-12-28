@@ -1,7 +1,7 @@
 import {Component, inject, NgZone, OnInit, signal, WritableSignal} from '@angular/core';
-import {MatIcon} from "@angular/material/icon";
+import {MatIcon, MatIconRegistry} from "@angular/material/icon";
 import {ParsingService} from '../../service/parsing.service';
-import {AoCSolution} from '../../mdoule/aoc-solution.module';
+import {AoCSolution} from '../../module/aoc-solution.module';
 import {HttpClient, HttpErrorResponse, HttpStatusCode} from '@angular/common/http';
 import {MatCard, MatCardContent, MatCardHeader, MatCardTitle} from '@angular/material/card';
 import {MatMiniFabButton} from '@angular/material/button';
@@ -14,11 +14,15 @@ import {
 import {MatError, MatFormField, MatInput, MatLabel} from '@angular/material/input';
 import {MatOption, MatSelect} from '@angular/material/select';
 import {FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import {Years} from '../../mdoule/year.module';
+import {Years} from '../../module/year.module';
 import {MatCheckbox} from '@angular/material/checkbox';
 import {SolutionCheckPipe} from '../../pipe/solution-check.pipe';
-import {NgClass} from '@angular/common';
+import {NgClass, NgOptimizedImage} from '@angular/common';
 import {environment} from '../../../environment/environment';
+import {MatTab, MatTabGroup, MatTabLabel} from '@angular/material/tabs';
+import {DomSanitizer} from '@angular/platform-browser';
+import {Language} from '../../module/language.module';
+import {ImplementationResultModule} from '../../module/implementation-result-module';
 
 export interface Filter {
   solution: boolean;
@@ -61,19 +65,35 @@ export enum Part {
     MatInput,
     MatCheckbox,
     FormsModule,
-    NgClass
+    NgClass,
+    MatTabGroup,
+    MatTab,
+    MatTabLabel,
   ],
   templateUrl: './parser.html',
   styleUrl: './parser.scss',
 })
 export class Parser implements OnInit {
+
+  constructor(iconRegistry: MatIconRegistry, sanitizer: DomSanitizer) {
+    iconRegistry.addSvgIcon(
+      'go-icon',
+      sanitizer.bypassSecurityTrustResourceUrl('icons/Go-Logo_Aqua.svg')
+    );
+    iconRegistry.addSvgIcon(
+      'kotlin-icon',
+      sanitizer.bypassSecurityTrustResourceUrl('icons/Kotlin_Logo.svg')
+    );
+  }
+
+
   private readonly parsingService = inject(ParsingService);
   private readonly ngZone = inject(NgZone);
-  private readonly http = inject(HttpClient);
   protected readonly environment = environment;
 
   aocSolution: WritableSignal<AoCSolution | undefined> = signal(undefined);
-  kotlinImplementation: WritableSignal<string | undefined> = signal(undefined);
+  kotlinImplementation: WritableSignal<ImplementationResultModule| undefined> = signal(undefined);
+  goImplementation: WritableSignal<ImplementationResultModule | undefined> = signal(undefined);
 
   yearsControl: FormControl<number | null> = new FormControl(null, Validators.required);
   daysControl: FormControl<number | null> = new FormControl(null, Validators.required);
@@ -246,26 +266,55 @@ export class Parser implements OnInit {
   }
 
   loadImplementation(): void {
+    this.loadKotlinImplementation()
+    this.loadGoImplementation()
+  }
+
+  private loadKotlinImplementation(): void {
     if (this.yearsControl.value === null || this.daysControl.value === null) {
       return;
     }
-
-    const url = `${environment.rawGithubUrl}/${environment.rawGithubPathToYear}/_${this.yearsControl.value}/day${this.daysControl.value}/Day${this.daysControl.value}.kt`;
-
-    this.http.get(url, {responseType: 'text'}).subscribe(text => {
-      const lines = text.split('\n');
-
-      const dayInfoIndex = lines.findIndex(line =>
-        line.includes('@DayInfo')
-      );
-
-      if (dayInfoIndex !== -1 && dayInfoIndex + 1 < lines.length) {
-        const result = lines.slice(dayInfoIndex + 1).join('\n');
-
+    this.parsingService
+    .getImplementation$(Language.KOTLIN, this.yearsControl.value, this.daysControl.value)
+    .subscribe({
+      next: (implementation: ImplementationResultModule) => {
         this.ngZone.run(() => {
-          this.kotlinImplementation.set(result);
-        });
-      }
+          this.kotlinImplementation.set(implementation);
+        })
+      },
+      error: (error: HttpErrorResponse) => {
+        if (error.status === HttpStatusCode.BadRequest) {
+          alert(`Wrong input for year ${this.yearsControl.value} day ${this.daysControl.value}`);
+        } else {
+          console.error(error);
+          alert("Unknown error. Please reload the page.");
+        }
+      },
     });
   }
+
+  private loadGoImplementation(): void {
+    if (this.yearsControl.value === null || this.daysControl.value === null) {
+      return;
+    }
+    this.parsingService
+    .getImplementation$(Language.GO, this.yearsControl.value, this.daysControl.value)
+    .subscribe({
+      next: (implementation: ImplementationResultModule) => {
+        this.ngZone.run(() => {
+          this.goImplementation.set(implementation);
+        })
+      },
+      error: (error: HttpErrorResponse) => {
+        if (error.status === HttpStatusCode.BadRequest) {
+          alert(`Wrong input for year ${this.yearsControl.value} day ${this.daysControl.value}`);
+        } else {
+          console.error(error);
+          alert("Unknown error. Please reload the page.");
+        }
+      },
+    });
+  }
+
 }
+
