@@ -9,12 +9,11 @@ class SourceFileExtractor {
 
     // TODO: Add cache
     fun getResourceFileAsString(fileName: String): String {
-        val inputStream = getResourceFileAsInputStream(fileName)
-        if (inputStream != null) {
-            val bufferReader = BufferedReader(inputStream.reader())
-            return bufferReader.readText()
-        } else {
-           throw IllegalArgumentException("File not found")
+        return getResourceFileAsInputStream(fileName).use { inputStream ->
+            if (inputStream == null) throw IllegalArgumentException("File not found: $fileName")
+            BufferedReader(inputStream.reader()).use {
+                it.readText()
+            }
         }
     }
 

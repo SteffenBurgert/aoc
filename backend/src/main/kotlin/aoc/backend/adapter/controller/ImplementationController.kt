@@ -20,14 +20,14 @@ class ImplementationController(
         return try {
             when (language) {
                 Language.KOTLIN -> {
-                    ResponseEntity.ok(ImplementationResultDto(true,sourceFileExtractor.getResourceFileAsString("sourceFiles/kotlin/_$year/day$day/Day$day.kt")))
+                    ResponseEntity.ok(ImplementationResultDto(true, sourceFileExtractor.getResourceFileAsString("sourceFiles/kotlin/_$year/day$day/Day$day.kt")))
                 }
                 Language.GO -> {
-                    return ResponseEntity.ok(ImplementationResultDto(true,sourceFileExtractor.getResourceFileAsString("sourceFiles/go/_$year/day$day.go")))
+                    return ResponseEntity.ok(ImplementationResultDto(true, sourceFileExtractor.getResourceFileAsString("sourceFiles/go/_$year/day$day.go")))
                 }
             }
         } catch (_: IllegalArgumentException) {
-            ResponseEntity.ok(ImplementationResultDto(false,"No $language implementation for this day yet."))
+            ResponseEntity.ok(ImplementationResultDto(false, "No $language implementation for this day yet."))
         }
     }
 }
