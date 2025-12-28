@@ -89,7 +89,6 @@ export class Parser implements OnInit {
 
   private readonly parsingService = inject(ParsingService);
   private readonly ngZone = inject(NgZone);
-  private readonly http = inject(HttpClient);
   protected readonly environment = environment;
 
   aocSolution: WritableSignal<AoCSolution | undefined> = signal(undefined);
@@ -267,10 +266,14 @@ export class Parser implements OnInit {
   }
 
   loadImplementation(): void {
+    this.loadKotlinImplementation()
+    this.loadGoImplementation()
+  }
+
+  private loadKotlinImplementation(): void {
     if (this.yearsControl.value === null || this.daysControl.value === null) {
       return;
     }
-    // Load kotlin implementation
     this.parsingService
     .getImplementation$(Language.KOTLIN, this.yearsControl.value, this.daysControl.value)
     .subscribe({
@@ -288,8 +291,12 @@ export class Parser implements OnInit {
         }
       },
     });
+  }
 
-    // Load go implementation
+  private loadGoImplementation(): void {
+    if (this.yearsControl.value === null || this.daysControl.value === null) {
+      return;
+    }
     this.parsingService
     .getImplementation$(Language.GO, this.yearsControl.value, this.daysControl.value)
     .subscribe({
@@ -308,4 +315,6 @@ export class Parser implements OnInit {
       },
     });
   }
+
 }
+
