@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     kotlin("jvm") version "2.2.21"
     kotlin("plugin.spring") version "2.2.21"
@@ -7,8 +9,8 @@ plugins {
 }
 
 group = "aoc"
-version = "0.0.1"
-description = "AoC Serializer"
+version = "0.1.0"
+description = "AoC Parser"
 
 java {
     toolchain {
@@ -85,4 +87,25 @@ val copySourceFiles by tasks.registering(Copy::class) {
 
 tasks.named("processResources") {
     dependsOn(copySourceFiles)
+}
+
+tasks.bootJar {
+    exclude("**/application-secrets.*", "**/application-local.*", "**/img")
+}
+
+tasks.compileKotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_21)
+    }
+}
+
+if (project.hasProperty("projVersion")) {
+    project.version = project.property("projVersion") as String
+} else {
+    project.version = "0.0.1-SNAPSHOT"
+}
+
+tasks.wrapper {
+    val versionGradle: String by project
+    gradleVersion = versionGradle
 }

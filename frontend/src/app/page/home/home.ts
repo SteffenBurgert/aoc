@@ -2,7 +2,7 @@ import {Component} from '@angular/core';
 import {environment} from '../../../environment/environment';
 
 @Component({
-  selector: 'app-home',
+  selector: 'aoc-home',
   standalone: true,
   imports: [],
   templateUrl: './home.html',

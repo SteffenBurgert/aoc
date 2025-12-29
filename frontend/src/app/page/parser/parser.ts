@@ -2,7 +2,7 @@ import {Component, inject, NgZone, OnInit, signal, WritableSignal} from '@angula
 import {MatIcon, MatIconRegistry} from "@angular/material/icon";
 import {ParsingService} from '../../service/parsing.service';
 import {AoCSolution} from '../../module/aoc-solution.module';
-import {HttpClient, HttpErrorResponse, HttpStatusCode} from '@angular/common/http';
+import {HttpErrorResponse, HttpStatusCode} from '@angular/common/http';
 import {MatCard, MatCardContent, MatCardHeader, MatCardTitle} from '@angular/material/card';
 import {MatMiniFabButton} from '@angular/material/button';
 import {
@@ -17,13 +17,15 @@ import {FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angula
 import {Years} from '../../module/year.module';
 import {MatCheckbox} from '@angular/material/checkbox';
 import {SolutionCheckPipe} from '../../pipe/solution-check.pipe';
-import {NgClass, NgOptimizedImage} from '@angular/common';
+import {NgClass} from '@angular/common';
 import {environment} from '../../../environment/environment';
 import {OrDashPipe, UnsignedNumberOrDashPipe} from '../../pipe/or-dash.pipe';
 import {MatTab, MatTabGroup, MatTabLabel} from '@angular/material/tabs';
 import {DomSanitizer} from '@angular/platform-browser';
 import {Language} from '../../module/language.module';
 import {ImplementationResultModule} from '../../module/implementation-result-module';
+import {MatDialog} from '@angular/material/dialog';
+import {ErrorModal} from '../../modal/error-modal/error-modal';
 
 export interface Filter {
   solution: boolean;
@@ -43,7 +45,7 @@ export enum Part {
 }
 
 @Component({
-  selector: 'app-parser',
+  selector: 'aoc-parser',
   standalone: true,
   imports: [
     SolutionCheckPipe,
@@ -80,6 +82,10 @@ export enum Part {
 })
 export class Parser implements OnInit {
 
+  readonly errorDialog = inject(MatDialog);
+  protected readonly environment = environment;
+  private readonly parsingService = inject(ParsingService);
+
   constructor(iconRegistry: MatIconRegistry, sanitizer: DomSanitizer) {
     iconRegistry.addSvgIcon(
       'go-icon',
@@ -91,13 +97,9 @@ export class Parser implements OnInit {
     );
   }
 
-
-  private readonly parsingService = inject(ParsingService);
-  private readonly ngZone = inject(NgZone);
-  protected readonly environment = environment;
-
   aocSolution: WritableSignal<AoCSolution | undefined> = signal(undefined);
-  kotlinImplementation: WritableSignal<ImplementationResultModule| undefined> = signal(undefined);
+  private readonly ngZone = inject(NgZone);
+  kotlinImplementation: WritableSignal<ImplementationResultModule | undefined> = signal(undefined);
   goImplementation: WritableSignal<ImplementationResultModule | undefined> = signal(undefined);
 
   yearsControl: FormControl<number | null> = new FormControl(null, Validators.required);
@@ -138,12 +140,12 @@ export class Parser implements OnInit {
   }
 
   public daySelectErrorMessage(): string {
-    return this.availableDays.length === 0 ? "Please select a year first" : "Please select a day"
+    return this.availableDays.length === 0 ? 'Please select a year first' : 'Please select a day'
   }
 
   public onFileSelected(event: any): void {
     if (this.yearsControl.value === null || this.daysControl.value === null) {
-      alert("Please select a year and day first");
+      this.openDialog('Please select a year and day first')
       return;
     }
 
@@ -166,19 +168,24 @@ export class Parser implements OnInit {
         },
         error: (error: HttpErrorResponse) => {
           if (error.status === HttpStatusCode.BadRequest) {
-            alert(`Wrong input for year ${this.yearsControl.value} day ${this.daysControl.value}`);
+            this.openDialog(`Wrong input for year ${this.yearsControl.value} day ${this.daysControl.value}`);
           } else {
-            alert("Unknown error. Please reload the page.");
+            this.openDialog("Unknown error. Please reload the page.");
           }
         },
       });
     }
   }
 
-  setFilterResults(part: Part) {
+  public setFilterResults(part: Part): void {
     this.setStatus(part);
     this.setDifference(part);
     this.setSolutionCheck(part);
+  }
+
+  public loadImplementation(): void {
+    this.loadKotlinImplementation()
+    this.loadGoImplementation()
   }
 
   private getCatalogue(): void {
@@ -189,7 +196,7 @@ export class Parser implements OnInit {
         })
       },
       error: (_: HttpErrorResponse) => {
-        alert("Couldn't load available years and days. Please try it again later.");
+        this.openDialog("Couldn't load available years and days. Please try it again later.");
       },
     })
   }
@@ -270,11 +277,6 @@ export class Parser implements OnInit {
     }
   }
 
-  loadImplementation(): void {
-    this.loadKotlinImplementation()
-    this.loadGoImplementation()
-  }
-
   private loadKotlinImplementation(): void {
     if (this.yearsControl.value === null || this.daysControl.value === null) {
       return;
@@ -289,10 +291,9 @@ export class Parser implements OnInit {
       },
       error: (error: HttpErrorResponse) => {
         if (error.status === HttpStatusCode.BadRequest) {
-          alert(`Wrong input for year ${this.yearsControl.value} day ${this.daysControl.value}`);
+          this.openDialog(`Wrong input for year ${this.yearsControl.value} day ${this.daysControl.value}`);
         } else {
-          console.error(error);
-          alert("Unknown error. Please reload the page.");
+          this.openDialog("Unknown error. Please reload the page.");
         }
       },
     });
@@ -312,12 +313,20 @@ export class Parser implements OnInit {
       },
       error: (error: HttpErrorResponse) => {
         if (error.status === HttpStatusCode.BadRequest) {
-          alert(`Wrong input for year ${this.yearsControl.value} day ${this.daysControl.value}`);
+          this.openDialog(`Wrong input for year ${this.yearsControl.value} day ${this.daysControl.value}`);
         } else {
           console.error(error);
-          alert("Unknown error. Please reload the page.");
+          this.openDialog("Unknown error. Please reload the page.");
         }
       },
     });
+  }
+
+  private openDialog(errorMessage: string): void {
+    const dialogRef = this.errorDialog.open(ErrorModal, {
+      data: {message: errorMessage},
+    });
+
+    dialogRef.afterClosed().subscribe();
   }
 }

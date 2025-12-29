@@ -99,7 +99,7 @@
                  placeholder="Your answer"
                  type="number">
         </mat-form-field>
-        <button (click)="setFilterResults(1)" color="primary" mat-mini-fab>
+        <button (click)="setFilterResults(1)" mat-mini-fab>
           <mat-icon>check</mat-icon>
         </button>
       </div>
@@ -194,19 +194,22 @@
       <mat-expansion-panel-header class="mat-mdc-card-header">
         <mat-panel-title class="mat-mdc-card-title">Implementation</mat-panel-title>
       </mat-expansion-panel-header>
-      <mat-tab-group animationDuration="300ms">
-        <mat-tab>
-          <ng-template mat-tab-label>
-            <mat-icon svgIcon="kotlin-icon" aria-hidden="false" aria-label="Kotlin icon" class="language-tab-icon"></mat-icon>
-          </ng-template>
-          <div class="card-padding">
-            @if (yearsControl.value !== null && daysControl.value !== null && kotlinImplementation() !== undefined) {
+      <div class="card-padding">
+        <mat-tab-group animationDuration="300ms">
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon svgIcon="kotlin-icon" aria-hidden="false" aria-label="Kotlin icon"
+                        class="language-tab-icon"></mat-icon>
+            </ng-template>
+            <br>
+            @if (yearsControl.value !== null && daysControl.value !== null && kotlinImplementation()
+            !== undefined) {
               @if (kotlinImplementation()?.implemented) {
                 <span>Link to:
                   <a
-                      href="{{environment.githubUrl}}/{{environment.githubPathToYear}}/_{{yearsControl.value}}/day{{daysControl.value}}/Day{{daysControl.value}}.kt"
-                      target="_blank"
-                      rel="noopener noreferrer">
+                    href="{{environment.githubUrl}}/{{environment.githubPathToYear}}/_{{yearsControl.value}}/day{{daysControl.value}}/Day{{daysControl.value}}.kt"
+                    target="_blank"
+                    rel="noopener noreferrer">
                     AoC_Year_{{ yearsControl.value }}_Day_{{ daysControl.value }}
                   </a>
                 </span>
@@ -215,20 +218,21 @@
             } @else {
               <span class="description-warning">Please select a year and day first.</span>
             }
-          </div>
-        </mat-tab>
-        <mat-tab>
-          <ng-template mat-tab-label>
-            <mat-icon svgIcon="go-icon" aria-hidden="false" aria-label="Go icon" class="language-tab-icon"></mat-icon>
-          </ng-template>
-          <div class="card-padding">
-            @if (yearsControl.value !== null && daysControl.value !== null && goImplementation() !== undefined) {
+          </mat-tab>
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon svgIcon="go-icon" aria-hidden="false" aria-label="Go icon"
+                        class="language-tab-icon"></mat-icon>
+            </ng-template>
+            <br>
+            @if (yearsControl.value !== null && daysControl.value !== null && goImplementation()
+            !== undefined) {
               @if (goImplementation()?.implemented) {
                 <span>Link to:
                   <a
-                      href="{{environment.githubUrl}}/blob/main/go-aoc/year/_{{yearsControl.value}}/day{{daysControl.value}}.go"
-                      target="_blank"
-                      rel="noopener noreferrer">
+                    href="{{environment.githubUrl}}/blob/main/go-aoc/year/_{{yearsControl.value}}/day{{daysControl.value}}.go"
+                    target="_blank"
+                    rel="noopener noreferrer">
                     AoC_Year_{{ yearsControl.value }}_Day_{{ daysControl.value }}
                   </a>
                 </span>
@@ -237,9 +241,9 @@
             } @else {
               <span class="description-warning">Please select a year and day first.</span>
             }
-          </div>
-        </mat-tab>
-      </mat-tab-group>
+          </mat-tab>
+        </mat-tab-group>
+      </div>
     </mat-expansion-panel>
   </mat-accordion>
 }

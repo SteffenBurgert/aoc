@@ -9,20 +9,20 @@ import {ImplementationResultModule} from '../module/implementation-result-module
 
 @Injectable({providedIn: 'root'})
 export class ParsingService {
-  private readonly apiServerUrl = environment.baseUrl;
+  private readonly baseUrl = environment.baseUrl;
 
   private readonly http = inject(HttpClient);
 
   public availability$(): Observable<Years> {
-    return this.http.get<Years>(this.apiServerUrl + 'availability');
+    return this.http.get<Years>(this.baseUrl + 'availability');
   }
 
   public uploadFile$(year: number, day: number, formData: FormData): Observable<AoCSolution> {
-    return this.http.post<AoCSolution>(this.apiServerUrl + `upload/${year}/${day}`, formData);
+    return this.http.post<AoCSolution>(this.baseUrl + `upload/${year}/${day}`, formData);
   }
 
   public getImplementation$(language: Language, year: number, day: number): Observable<ImplementationResultModule> {
-    return this.http.get<ImplementationResultModule>(this.apiServerUrl + `implementation/${Language[language]}/${year}/${day}`);
+    return this.http.get<ImplementationResultModule>(this.baseUrl + `implementation/${Language[language]}/${year}/${day}`);
   }
 
 }
