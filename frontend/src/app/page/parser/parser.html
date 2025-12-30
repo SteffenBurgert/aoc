@@ -35,11 +35,10 @@
         <input disabled matInput placeholder="File name" value="{{fileName}}">
       </mat-form-field>
 
-      <input #lstLineModel (change)="onFileSelected($event)" class="icon-button" hidden
-             type="file"/>
+      <input #inputFile (change)="onFileSelected($event)" hidden type="file"/>
 
       <div>
-        <button (click)="lstLineModel.click()" class="upload-btn" color="primary" mat-mini-fab>
+        <button (click)="inputFile.click()" class="upload-btn" color="primary" mat-mini-fab>
           <mat-icon>upload_file</mat-icon>
         </button>
       </div>
@@ -71,7 +70,13 @@
   'incorrect-answer': solutionCheck.part1 === false,
   }" class="card">
     <mat-expansion-panel-header>
-      <mat-panel-title class="mat-mdc-card-title solution-header"><span>Part 1</span>
+      <mat-panel-title class="mat-mdc-card-title solution-header">
+        <div>
+          <span>Part 1</span>
+          @if (aocSolution()?.part1 === -1) {
+            <span class="description-warning">&nbsp;-&nbsp;Not yet implemented!</span>
+          }
+        </div>
         <span>{{ solutionCheck.part1 | check }}</span></mat-panel-title>
     </mat-expansion-panel-header>
 
@@ -102,19 +107,19 @@
       @if (filter.showStatus) {
         <dl>
           <dd class="dd-solution">Status</dd>
-          <dt>{{ status.part1 }}</dt>
+          <dt>{{ status.part1 | orDash }}</dt>
         </dl>
       }
       @if (filter.showDifference) {
         <dl>
           <dd class="dd-solution">Difference</dd>
-          <dt>{{ difference.part1 }}</dt>
+          <dt>{{ difference.part1 | orDash }}</dt>
         </dl>
       }
       @if (filter.solution) {
         <dl>
           <dd class="dd-solution">Solution</dd>
-          <dt>{{ aocSolution()?.part1 }}</dt>
+          <dt>{{ aocSolution()?.part1 | unsingedNumberOrDash }}</dt>
         </dl>
       }
     </div>
@@ -126,7 +131,12 @@
   }" class="card">
     <mat-expansion-panel-header class="mat-mdc-card-header">
       <mat-panel-title class="mat-mdc-card-title solution-header">
-        <span>Part 2</span>
+        <div>
+          <span>Part 2</span>
+          @if (aocSolution()?.part2 === -1) {
+            <span class="description-warning">&nbsp;-&nbsp;Not yet implemented!</span>
+          }
+        </div>
         <span>{{ solutionCheck.part2 | check }}</span>
       </mat-panel-title>
     </mat-expansion-panel-header>
@@ -158,19 +168,19 @@
       @if (filter.showStatus) {
         <dl>
           <dd class="dd-solution">Status</dd>
-          <dt>{{ status.part2 }}</dt>
+          <dt>{{ status.part2 | orDash }}</dt>
         </dl>
       }
       @if (filter.showDifference) {
         <dl>
           <dd class="dd-solution">Difference</dd>
-          <dt>{{ difference.part2 }}</dt>
+          <dt>{{ difference.part2 | orDash }}</dt>
         </dl>
       }
       @if (filter.solution) {
         <dl>
           <dd class="dd-solution">Solution</dd>
-          <dt>{{ aocSolution()?.part2 }}</dt>
+          <dt>{{ aocSolution()?.part2 | unsingedNumberOrDash }}</dt>
         </dl>
       }
     </div>

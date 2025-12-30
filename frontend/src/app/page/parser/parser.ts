@@ -19,6 +19,7 @@ import {MatCheckbox} from '@angular/material/checkbox';
 import {SolutionCheckPipe} from '../../pipe/solution-check.pipe';
 import {NgClass, NgOptimizedImage} from '@angular/common';
 import {environment} from '../../../environment/environment';
+import {OrDashPipe, UnsignedNumberOrDashPipe} from '../../pipe/or-dash.pipe';
 import {MatTab, MatTabGroup, MatTabLabel} from '@angular/material/tabs';
 import {DomSanitizer} from '@angular/platform-browser';
 import {Language} from '../../module/language.module';
@@ -69,6 +70,10 @@ export enum Part {
     MatTabGroup,
     MatTab,
     MatTabLabel,
+    NgClass,
+    OrDashPipe,
+    OrDashPipe,
+    UnsignedNumberOrDashPipe
   ],
   templateUrl: './parser.html',
   styleUrl: './parser.scss',
@@ -232,13 +237,13 @@ export class Parser implements OnInit {
   }
 
   private calculateStatus(answer: number | undefined, solution: number | undefined): string {
-    if (answer === undefined && solution === undefined) {
+    if (answer === undefined || solution === undefined) {
       return '';
     } else {
-      if (answer! < solution!) {
+      if (answer < solution) {
         return "Your answer is to low";
       }
-      if (answer! > solution!) {
+      if (answer > solution) {
         return "Your answer is to high";
       }
 
@@ -258,10 +263,10 @@ export class Parser implements OnInit {
   }
 
   private calculateDifference(answer: number | undefined, solution: number | undefined): string {
-    if (answer === undefined && solution === undefined) {
+    if (answer === undefined || solution === undefined) {
       return '';
     } else {
-      return Math.abs(answer! - solution!).toString()
+      return Math.abs(answer - solution).toString()
     }
   }
 
@@ -315,6 +320,4 @@ export class Parser implements OnInit {
       },
     });
   }
-
 }
-
