@@ -14,9 +14,7 @@ class Day10() : Day {
 
     override fun part1(lines: List<String>): Long {
         val input = getInputParts(lines)
-        val presses = input.sumOf { getPossibleCombinationsSorted(it).first().presses }
-
-        return presses.toLong()
+        return input.sumOf { input -> getMinPresses(input) }.toLong()
     }
 
     override fun part2(lines: List<String>): Long {
@@ -36,26 +34,25 @@ class Day10() : Day {
                     buttons = parts.drop(1).dropLast(1)
                         .map { it.parseIntList() }
                         .map { it.sumOf { value -> 1 shl value } },
-                    buttonsList = parts.drop(1).dropLast(1).map { it.parseIntList() },
                     times = parts.last().parseIntList()
                 )
             }
         }
     }
 
-    private fun getPossibleCombinationsSorted(input: Input): List<Combination> {
-        val combinations = mutableListOf<Combination>()
+    private fun getMinPresses(input: Input): Int {
+        var minPresses = input.buttons.size
 
         for (round in 1 until (1 shl input.buttons.size)) {
             val positions = getOnePositions(round)
             val signalResult = positions.fold(0) { acc, pos -> acc xor input.buttons[pos] }
 
             if (signalResult == input.signal) {
-                combinations.add(Combination(positions, positions.size))
+                minPresses = minOf(minPresses, positions.size)
             }
         }
 
-        return combinations.sortedBy { it.presses }
+        return minPresses
     }
 
     private fun getOnePositions(number: Int): List<Int> {
@@ -78,11 +75,5 @@ class Day10() : Day {
 data class Input(
     val signal: Int,
     val buttons: List<Int>,
-    val buttonsList: List<List<Int>>,
     val times: List<Int>,
-)
-
-data class Combination(
-    val buttonCombinations: List<Int>,
-    val presses: Int,
 )
