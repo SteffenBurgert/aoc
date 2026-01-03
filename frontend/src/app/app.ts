@@ -4,7 +4,7 @@ import {MatButton} from '@angular/material/button';
 import {NgOptimizedImage} from '@angular/common';
 
 @Component({
-  selector: 'app-root',
+  selector: 'aoc-root',
   standalone: true,
   imports: [RouterOutlet, MatButton, RouterLink, NgOptimizedImage],
   templateUrl: './app.html',

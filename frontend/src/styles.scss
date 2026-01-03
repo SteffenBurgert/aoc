@@ -52,3 +52,30 @@ body {
   font-weight: 400;
   font-style: normal;
 }
+
+.mat-mdc-tab.mdc-tab--active {
+  background-color: var(--mat-fab-small-container-color, var(--mat-sys-primary-container)) !important;
+}
+
+:root {
+  --checkbox-checkmark-color: var(--mat-fab-small-foreground-color, var(--mat-sys-on-primary-container, inherit));
+  --checkbox-icon-color: var(--mat-sys-primary-container);
+
+  @include mat.checkbox-overrides((
+    // SELECTED
+    selected-icon-color: var(--checkbox-icon-color),
+    selected-checkmark-color: var(--checkbox-checkmark-color),
+    // HOVER
+    selected-hover-icon-color: var(--checkbox-icon-color),
+    selected-hover-state-layer-color: var(--checkbox-checkmark-color),
+    // PRESSED
+    selected-pressed-icon-color: var(--checkbox-icon-color),
+    selected-pressed-state-layer-color: var(--checkbox-checkmark-color),
+    // FOCUS
+    selected-focus-icon-color: var(--checkbox-icon-color),
+    selected-focus-state-layer-color: var(--checkbox-checkmark-color),
+    // DISABLED
+    disabled-selected-icon-color: var(--checkbox-icon-color),
+    disabled-selected-checkmark-color: var(--checkbox-checkmark-color),
+  ));
+}

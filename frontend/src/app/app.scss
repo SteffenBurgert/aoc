@@ -15,8 +15,8 @@ header, footer {
   gap: 1dvw;
   padding: 1dvh 2dvw;
 
-  background-color: var(--mat-sys-on-primary-fixed-variant);
-  color: var(--mat-sys-secondary-fixed);
+  background-color: var(--mat-fab-small-container-color, var(--mat-sys-primary-container));
+  color: var(--mat-fab-small-foreground-color, var(--mat-sys-on-primary-container, inherit));
 }
 
 main {

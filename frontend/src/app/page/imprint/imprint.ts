@@ -1,9 +1,12 @@
 import {Component} from '@angular/core';
+import {NgOptimizedImage} from '@angular/common';
 
 @Component({
-  selector: 'app-imprint',
+  selector: 'aoc-imprint',
   standalone: true,
-  imports: [],
+  imports: [
+    NgOptimizedImage
+  ],
   templateUrl: './imprint.html',
   styleUrl: './imprint.scss',
 })
