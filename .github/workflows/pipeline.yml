@@ -77,7 +77,7 @@ jobs:
       - name: Print tag
         run: echo "Tag is ${TAG_NAME}"
       - name: Build with Gradle
-        run: ./gradlew clean build -x test -PprojVersion=${TAG_NAME} -PnexusSnapshotUrl=${{ secrets.NEXUS_SNAPSHOT_URL }} -PnexusUrl=${{ secrets.NEXUS_URL }} -PnexusUser=${{ secrets.NEXUS_USER }} -PnexusPassword=${{ secrets.NEXUS_PASSWORD }}
+        run: ./backend/gradlew clean build -x test -PprojVersion=${TAG_NAME} -PnexusSnapshotUrl=${{ secrets.NEXUS_SNAPSHOT_URL }} -PnexusUrl=${{ secrets.NEXUS_URL }} -PnexusUser=${{ secrets.NEXUS_USER }} -PnexusPassword=${{ secrets.NEXUS_PASSWORD }}
 
       - name: Log in to the Container registry
         uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
@@ -143,7 +143,7 @@ jobs:
         continue-on-error: true
         run: npm list
       - name: Install dependencies
-        run: npm clean install
+        run: npm install
         working-directory: frontend
       - name: Build
         run: npm run build
