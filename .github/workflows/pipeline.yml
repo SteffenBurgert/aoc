@@ -211,3 +211,28 @@ jobs:
         run: gh release create ${RELEASE_TAG} --generate-notes
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy-prod:
+    if: ${{ github.event_name == 'workflow_dispatch' && (github.ref_name == 'main' || startsWith(github.ref_name, 'hotfix') || startsWith(github.ref_name, 'release')) }}
+    needs:
+      - version
+      - build-and-push-backend
+      - build-and-push-frontend
+      - create_release
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          script: |
+            docker pull ghcr.io/${{ github.actor }}/aoc-backend:${{ needs.version.outputs.tag }}
+            docker pull ghcr.io/${{ github.actor }}/aoc-frontend:${{ needs.version.outputs.tag }}
+            docker compose up -d
