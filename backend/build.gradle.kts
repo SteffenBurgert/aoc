@@ -8,10 +8,6 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
 }
 
-group = "aoc"
-version = "0.1.0"
-description = "AoC Parser"
-
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
