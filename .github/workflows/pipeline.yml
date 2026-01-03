@@ -10,8 +10,6 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  BACKEND_IMAGE: ${{ github.repository }}-backend
-  FRONTEND_IMAGE: ${{ github.repository }}-frontend
 
 jobs:
   version:
@@ -77,17 +75,13 @@ jobs:
       - name: Print tag
         run: echo "Tag is ${TAG_NAME}"
       - name: Build with Gradle
-        run: ./gradlew clean build -x test -PprojVersion=${TAG_NAME} \
-          -PnexusSnapshotUrl=${{ secrets.NEXUS_SNAPSHOT_URL }} \
-          -PnexusUrl=${{ secrets.NEXUS_URL }} \
-          -PnexusUser=${{ secrets.NEXUS_USER }} \
-          -PnexusPassword=${{ secrets.NEXUS_PASSWORD }}
+        run: ./gradlew clean build -x test -PprojVersion=${TAG_NAME}
         working-directory: backend
 
       - name: Log in to the Container registry
         uses: docker/login-action@v2
         with:
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -102,7 +96,7 @@ jobs:
 
       - name: Build and push Docker image
         id: push
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           context: backend
           file: backend/Dockerfile
@@ -113,7 +107,7 @@ jobs:
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v3
         with:
-          subject-name: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE}}
+          subject-name: ghcr.io/${{ github.actor }}/aoc-backend
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
 
@@ -121,6 +115,12 @@ jobs:
     needs:
       - version
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
 
     steps:
       - name: Checkout
@@ -148,7 +148,7 @@ jobs:
         continue-on-error: true
         run: npm list
       - name: Install dependencies
-        run: npm install
+        run: npm ci
         working-directory: frontend
       - name: Build
         run: npm run build
@@ -157,7 +157,7 @@ jobs:
       - name: Log in to the Container registry
         uses: docker/login-action@v2
         with:
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -172,7 +172,7 @@ jobs:
 
       - name: Build and push Docker image
         id: push
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           context: frontend
           file: frontend/Dockerfile
@@ -183,7 +183,7 @@ jobs:
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v3
         with:
-          subject-name: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE}}
+          subject-name: ghcr.io/${{ github.actor }}/aoc-frontend
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
 
