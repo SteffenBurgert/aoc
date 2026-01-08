@@ -4,7 +4,10 @@ on:
   push:
     branches:
       - main
-
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend.yml'
+      - '.github/workflows/build.yml'
 env:
   REGISTRY: ghcr.io
 
@@ -17,14 +20,9 @@ jobs:
       - id: set-tag
         run: echo "tag=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
 
-  changes:
-    uses: ./.github/workflows/changes.yml
-
   run-build:
     needs:
       - version
-      - changes
-    if: needs.changes.outputs.backend == 'true'
     uses: ./.github/workflows/build.yml
     with:
       component: 'backend'
@@ -32,11 +30,19 @@ jobs:
 
   push-docker:
     needs:
-      - changes
       - run-build
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout
+        uses: actions/checkout@v5
+
       - name: Download JAR
         uses: actions/download-artifact@v4
         with:
@@ -51,19 +57,20 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Docker image
+        id: push
         uses: docker/build-push-action@v5
         with:
           context: ./backend
+          file: ./backend/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.actor }}/backend:latest
+          tags: ghcr.io/${{ github.actor }}/backend:${{ needs.version.outputs.tag }}
 
   create-release:
     needs:
-      - changes
       - run-build
       - push-docker
-    if: needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v5
 
@@ -87,9 +94,7 @@ jobs:
           gh release create "$TAG" --generate-notes
 
   deploy-prod-backend:
-    if: needs.changes.outputs.backend == 'true'
     needs:
-      - changes
       - create-release
     runs-on: ubuntu-latest
     environment:

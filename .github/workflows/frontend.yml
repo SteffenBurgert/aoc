@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend.yml'
+      - '.github/workflows/build.yml'
 
 env:
   REGISTRY: ghcr.io
@@ -17,25 +21,19 @@ jobs:
       - id: set-tag
         run: echo "tag=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
 
-  changes:
-    uses: ./.github/workflows/changes.yml
-
   run-build:
     needs:
       - version
-      - changes
-    if: needs.changes.outputs.frontend == 'true'
     uses: ./.github/workflows/build.yml
     with:
       component: 'frontend'
       tag: ${{ needs.version.outputs.tag }}
 
-  build-and-push:
+  push-docker:
     needs:
-      - changes
       - run-build
-    if: needs.changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
+
     permissions:
       contents: read
       packages: write
@@ -66,15 +64,14 @@ jobs:
           context: ./frontend
           file: ./frontend/Dockerfile
           push: true
-          tags: |
-            ghcr.io/${{ github.actor }}/frontend:latest
+          tags: ghcr.io/${{ github.actor }}/frontend:${{ needs.version.outputs.tag }}
 
   create-release:
     needs:
-      - changes
-      - build-and-push
-    if: needs.changes.outputs.frontend == 'true'
+      - run-build
+      - push-docker
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v5
 
@@ -99,9 +96,7 @@ jobs:
 
   deploy-prod-frontend:
     needs:
-      - changes
       - create-release
-    if: needs.changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
     environment:
       name: production
