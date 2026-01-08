@@ -1,0 +1,109 @@
+name: backend
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.set-tag.outputs.tag }}
+    steps:
+      - id: set-tag
+        run: echo "tag=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+
+  changes:
+    uses: ./.github/workflows/changes.yml
+
+  run-build:
+    needs:
+      - version
+      - changes
+    if: needs.changes.outputs.backend == 'true'
+    uses: ./.github/workflows/build.yml
+    with:
+      component: 'backend'
+      tag: ${{ needs.version.outputs.tag }}
+
+  push-docker:
+    needs:
+      - changes
+      - run-build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Download JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-jar
+          path: backend/build/libs/
+
+      - name: Log in to Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: ghcr.io/${{ github.actor }}/backend:latest
+
+  create-release:
+    needs:
+      - changes
+      - run-build
+      - push-docker
+    if: needs.changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Create Git tag & GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          TAG="v${{ needs.version.outputs.tag }}"
+
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag already exists"
+            exit 0
+          fi
+
+          git tag "$TAG"
+          git push origin "$TAG"
+
+          gh release create "$TAG" --generate-notes
+
+  deploy-prod-backend:
+    if: needs.changes.outputs.backend == 'true'
+    needs:
+      - changes
+      - create-release
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          script: |
+            docker pull ghcr.io/${{ github.actor }}/backend:${{ needs.version.outputs.tag }}
+            docker compose up -d

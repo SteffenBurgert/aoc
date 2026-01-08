@@ -1,0 +1,120 @@
+name: frontend
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.set-tag.outputs.tag }}
+    steps:
+      - id: set-tag
+        run: echo "tag=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+
+  changes:
+    uses: ./.github/workflows/changes.yml
+
+  run-build:
+    needs:
+      - version
+      - changes
+    if: needs.changes.outputs.frontend == 'true'
+    uses: ./.github/workflows/build.yml
+    with:
+      component: 'frontend'
+      tag: ${{ needs.version.outputs.tag }}
+
+  build-and-push:
+    needs:
+      - changes
+      - run-build
+    if: needs.changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: ./frontend/dist/
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        id: push
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.actor }}/frontend:latest
+
+  create-release:
+    needs:
+      - changes
+      - build-and-push
+    if: needs.changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Create Git tag & GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          TAG="v${{ needs.version.outputs.tag }}"
+
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag already exists"
+            exit 0
+          fi
+
+          git tag "$TAG"
+          git push origin "$TAG"
+
+          gh release create "$TAG" --generate-notes
+
+  deploy-prod-frontend:
+    needs:
+      - changes
+      - create-release
+    if: needs.changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          script: |
+            docker pull ghcr.io/${{ github.actor }}/frontend:${{ needs.version.outputs.tag }}
+            docker compose up -d
