@@ -1,4 +1,5 @@
-name: pipeline
+name: verify
+
 on:
   push:
     branches-ignore:
