@@ -6,12 +6,12 @@ on:
       - main
 
 jobs:
-  build-backend:
+  backend:
     uses: ./.github/workflows/build-backend.yml
     with:
       tag: "temp-tag"
 
-  build-frontend:
+  frontend:
     uses: ./.github/workflows/build-frontend.yml
     with:
       tag: "temp-tag"
