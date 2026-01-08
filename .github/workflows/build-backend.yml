@@ -1,18 +1,13 @@
-name: build
+name: build backend
 on:
   workflow_call:
     inputs:
-      component:
-        description: "frontend oder backend"
-        required: true
-        type: string
       tag:
         required: true
         type: string
 
 jobs:
   build-backend:
-    if: inputs.component == 'backend'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -29,19 +24,3 @@ jobs:
         with:
           name: backend-jar
           path: backend/build/libs/*.jar
-
-  build-frontend:
-    if: inputs.component == 'frontend'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-      - name: Build frontend
-        run: |
-          npm ci
-          npm run build
-        working-directory: ./frontend
-      - name: Upload Dist
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-dist
-          path: ./frontend/dist/

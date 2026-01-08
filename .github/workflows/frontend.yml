@@ -24,9 +24,8 @@ jobs:
   run-build:
     needs:
       - version
-    uses: ./.github/workflows/build.yml
+    uses: ./.github/workflows/build-frontend.yml
     with:
-      component: 'frontend'
       tag: ${{ needs.version.outputs.tag }}
 
   push-docker:
