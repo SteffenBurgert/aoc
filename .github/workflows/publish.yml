@@ -56,6 +56,9 @@ jobs:
   create-release:
     needs: push-docker
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
     steps:
       - uses: actions/checkout@v5
       - name: Create Git tag & GitHub Release
