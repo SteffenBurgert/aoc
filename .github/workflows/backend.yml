@@ -9,6 +9,7 @@ on:
       - 'backend/**'
       - '.github/workflows/backend.yml'
       - '.github/workflows/build-backend.yml'
+      - '.github/workflows/publish.yml'
 
 jobs:
   version:

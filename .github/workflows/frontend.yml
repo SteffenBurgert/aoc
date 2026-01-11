@@ -9,6 +9,7 @@ on:
       - 'frontend/**'
       - '.github/workflows/frontend.yml'
       - '.github/workflows/build-frontend.yml'
+      - '.github/workflows/publish.yml'
 
 jobs:
   version:
