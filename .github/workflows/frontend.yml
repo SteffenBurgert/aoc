@@ -28,87 +28,14 @@ jobs:
     with:
       tag: ${{ needs.version.outputs.tag }}
 
-  push-docker:
+  publish:
     needs:
+      - version
       - run-build
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-      packages: write
-      attestations: write
-      id-token: write
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: Download Build Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: frontend-dist
-          path: ./frontend/dist/
-
-      - name: Log in to the Container registry
-        uses: docker/login-action@v2
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push Docker image
-        id: push
-        uses: docker/build-push-action@v5
-        with:
-          context: ./frontend
-          file: ./frontend/Dockerfile
-          push: true
-          tags: ghcr.io/${{ github.actor }}/frontend:${{ needs.version.outputs.tag }}
-
-  create-release:
-    needs:
-      - run-build
-      - push-docker
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Create Git tag & GitHub Release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-
-          TAG="v${{ needs.version.outputs.tag }}"
-
-          if git rev-parse "$TAG" >/dev/null 2>&1; then
-            echo "Tag already exists"
-            exit 0
-          fi
-
-          git tag "$TAG"
-          git push origin "$TAG"
-
-          gh release create "$TAG" --generate-notes
-
-  deploy-prod-frontend:
-    needs:
-      - create-release
-    runs-on: ubuntu-latest
-    environment:
-      name: production
-
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.PROD_HOST }}
-          username: ${{ secrets.PROD_USER }}
-          key: ${{ secrets.PROD_SSH_KEY }}
-          script: |
-            docker pull ghcr.io/${{ github.actor }}/frontend:${{ needs.version.outputs.tag }}
-            docker compose up -d
+    uses: ./.github/workflows/publish.yml
+    with:
+      tag: ${{ needs.version.outputs.tag }}
+      artifact-name: frontend-dist
+      artifact-path: frontend/dist/
+      image-name: frontend
+      docker-context: ./frontend
