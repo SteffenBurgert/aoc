@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - aoc-infra # todo: remove after test
     paths:
       - 'frontend/**'
       - '.github/workflows/frontend.yml'
