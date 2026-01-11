@@ -2,7 +2,7 @@ name: build backend
 on:
   workflow_call:
     inputs:
-      tag:
+      version:
         required: true
         type: string
 
@@ -17,7 +17,7 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
       - name: Build with Gradle
-        run: ./gradlew clean build -x test -PprojVersion=${{ inputs.tag }}
+        run: ./gradlew clean build -x test -PprojVersion=${{ inputs.version }}
         working-directory: ./backend
       - name: Upload JAR
         uses: actions/upload-artifact@v4

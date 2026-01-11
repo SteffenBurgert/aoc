@@ -9,9 +9,9 @@ jobs:
   backend:
     uses: ./.github/workflows/build-backend.yml
     with:
-      tag: "temp-tag"
+      version: "temp-version"
 
   frontend:
     uses: ./.github/workflows/build-frontend.yml
     with:
-      tag: "temp-tag"
+      version: "temp-version"

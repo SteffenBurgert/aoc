@@ -1,0 +1,69 @@
+name: release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - id: version
+        run: |
+          BASE_VERSION="${GITHUB_SHA::7}"
+          
+          if [ "${{ github.ref_name }}" != "main" ]; then
+            BASE_VERSION="$BASE_VERSION-SNAPSHOT"
+          fi
+          
+          echo "version=$BASE_VERSION" >> $GITHUB_OUTPUT
+
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+      backend: ${{ steps.filter.outputs.backend }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          base: ${{ github.ref_name }}
+          filters: |
+            frontend:
+              - 'frontend/**'
+              - '.github/workflows/release.yml'
+              - '.github/workflows/frontend.yml'
+              - '.github/workflows/build-frontend.yml'
+              - '.github/workflows/publish.yml'
+            backend:
+              - 'backend/**'
+              - '.github/workflows/release.yml'
+              - '.github/workflows/backend.yml'
+              - '.github/workflows/build-backend.yml'
+              - '.github/workflows/publish.yml'
+
+  release-frontend:
+    needs:
+     - version
+     - changes
+    if: needs.changes.outputs.frontend == 'true'
+    uses: ./.github/workflows/frontend.yml
+    with:
+      version:
+        ${{ needs.version.outputs.version }}
+
+  release-backend:
+    needs:
+      - version
+      - changes
+    if: needs.changes.outputs.backend == 'true'
+    uses: ./.github/workflows/backend.yml
+    with:
+      version:
+        ${{ needs.version.outputs.version }}

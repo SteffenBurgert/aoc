@@ -2,7 +2,7 @@ name: build frontend
 on:
   workflow_call:
     inputs:
-      tag:
+      version:
         required: true
         type: string
 

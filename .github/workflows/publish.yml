@@ -3,7 +3,7 @@ name: publish
 on:
   workflow_call:
     inputs:
-      tag:
+      version:
         required: true
         type: string
       artifact-name:
@@ -55,7 +55,7 @@ jobs:
           context: ${{ inputs.docker-context }}
           file: ${{ inputs.docker-context }}/Dockerfile
           push: true
-          tags: ghcr.io/${{ env.ACTOR }}/${{ inputs.image-name }}:${{ inputs.tag }}
+          tags: ghcr.io/${{ env.ACTOR }}/${{ inputs.image-name }}:${{ inputs.version }}
 
   create-release:
     needs: push-docker
@@ -73,7 +73,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
-          TAG="${{ inputs.image-name }}-v${{ inputs.tag }}"
+          TAG="${{ inputs.image-name }}-v${{ inputs.version }}"
           
           if git rev-parse "$TAG" >/dev/null 2>&1; then
             echo "Tag already exists"

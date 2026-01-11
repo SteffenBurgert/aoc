@@ -1,34 +1,20 @@
 name: frontend
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'frontend/**'
-      - '.github/workflows/frontend.yml'
-      - '.github/workflows/build-frontend.yml'
-      - '.github/workflows/publish.yml'
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
 
 jobs:
-  version:
-    runs-on: ubuntu-latest
-    outputs:
-      tag: ${{ steps.set-tag.outputs.tag }}
-    steps:
-      - id: set-tag
-        run: echo "tag=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
-
   run-build:
-    needs:
-      - version
     uses: ./.github/workflows/build-frontend.yml
     with:
-      tag: ${{ needs.version.outputs.tag }}
+      version: ${{ inputs.version }}
 
   publish:
     needs:
-      - version
       - run-build
 
     permissions:
@@ -39,7 +25,7 @@ jobs:
 
     uses: ./.github/workflows/publish.yml
     with:
-      tag: ${{ needs.version.outputs.tag }}
+      version: ${{ inputs.version }}
       artifact-name: frontend-dist
       artifact-path: frontend/dist/
       image-name: frontend
