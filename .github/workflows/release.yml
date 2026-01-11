@@ -51,22 +51,36 @@ jobs:
               - '.github/workflows/build-backend.yml'
               - '.github/workflows/publish.yml'
 
-  release-frontend:
-    needs:
-     - version
-     - changes
-    if: needs.changes.outputs.frontend == 'true'
-    uses: ./.github/workflows/frontend.yml
-    with:
-      version:
-        ${{ needs.version.outputs.version }}
-
   release-backend:
     needs:
       - version
       - changes
     if: needs.changes.outputs.backend == 'true'
+
+    permissions:
+      contents: write
+      packages: write
+      attestations: write
+      id-token: write
+
     uses: ./.github/workflows/backend.yml
+    with:
+      version:
+        ${{ needs.version.outputs.version }}
+
+  release-frontend:
+    needs:
+      - version
+      - changes
+    if: needs.changes.outputs.frontend == 'true'
+
+    permissions:
+      contents: write
+      packages: write
+      attestations: write
+      id-token: write
+
+    uses: ./.github/workflows/frontend.yml
     with:
       version:
         ${{ needs.version.outputs.version }}
