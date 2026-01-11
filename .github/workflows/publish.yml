@@ -29,6 +29,10 @@ jobs:
       id-token: write
 
     steps:
+      - name: Normalize owner name
+        run: |
+          echo "ACTOR=$(echo "${{ github.actor }}" | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
       - name: Checkout
         uses: actions/checkout@v5
 
@@ -51,7 +55,7 @@ jobs:
           context: ${{ inputs.docker-context }}
           file: ${{ inputs.docker-context }}/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/${{ inputs.image-name }}:${{ inputs.tag }}
+          tags: ghcr.io/${{ env.ACTOR }}/${{ inputs.image-name }}:${{ inputs.tag }}
 
   create-release:
     needs: push-docker
