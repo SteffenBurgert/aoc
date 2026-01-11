@@ -51,7 +51,7 @@ jobs:
           context: ${{ inputs.docker-context }}
           file: ${{ inputs.docker-context }}/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.actor }}/${{ inputs.image-name }}:${{ inputs.tag }}
+          tags: ghcr.io/${{ github.repository_owner }}/${{ inputs.image-name }}:${{ inputs.tag }}
 
   create-release:
     needs: push-docker
