@@ -9,8 +9,6 @@ on:
       - 'backend/**'
       - '.github/workflows/backend.yml'
       - '.github/workflows/build-backend.yml'
-env:
-  REGISTRY: ghcr.io
 
 jobs:
   version:
@@ -32,6 +30,12 @@ jobs:
     needs:
      - version
      - run-build
+
+    permissions:
+      attestations: write
+      packages: write
+      id-token: write
+
     uses: ./.github/workflows/publish.yml
     with:
       tag: ${{ needs.version.outputs.tag }}
