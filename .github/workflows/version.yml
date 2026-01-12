@@ -31,19 +31,20 @@ jobs:
           tag_prefix: ${{ inputs.service-name }}-v
           fetch_all_tags: true
           dry_run: true
+          append_to_pre_release_tag: ""
           release_branches: main
 
-      - name: Generate Timestamp and Final Version
+      - name: Generate Final Version
         id: final
         run: |
           TIMESTAMP=$(date +'%Y%m%d-%H%M')
-          BASE_VERSION="${{ steps.tag_version.outputs.new_version }}"
           
-          if [ "${{ github.ref_name }}" != "main" ]; then
-            FINAL_VERSION="${BASE_VERSION}-SNAPSHOT-${{ github.ref_name }}-${TIMESTAMP}"
+          if [ "${{ github.ref_name }}" == "main" ]; then
+            FINAL_VERSION="${{ steps.tag_version.outputs.new_version }}"
           else
-            FINAL_VERSION="${BASE_VERSION}"
+            BASE_WITH_BRANCH="${{ steps.tag_version.outputs.new_version }}"
+            FINAL_VERSION="${BASE_WITH_BRANCH}-SNAPSHOT-${TIMESTAMP}"
           fi
           
           echo "version=$FINAL_VERSION" >> $GITHUB_OUTPUT
-          echo "Calculated Version with Timestamp: $FINAL_VERSION"
+          echo "Final Version: $FINAL_VERSION"
