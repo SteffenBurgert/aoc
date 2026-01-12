@@ -15,7 +15,7 @@ jobs:
   calculate-version:
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.final.outputs.version }}
+      version: ${{ steps.tag_version.outputs.new_version }}
 
     steps:
       - name: Checkout
@@ -32,4 +32,9 @@ jobs:
           fetch_all_tags: true
           dry_run: true
           append_to_pre_release_tag: "SNAPSHOT-${{ github.ref_name }}"
-          pre_release: ${{ github.ref_name != 'main' }}
+          release_branches: main
+
+      - name: Debug version Output
+        run: |
+          echo "Calculated version: ${{ steps.tag_version.outputs.new_version }}"
+          echo "Target tag: ${{ steps.tag_version.outputs.new_tag }}"
