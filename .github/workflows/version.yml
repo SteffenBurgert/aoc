@@ -31,13 +31,5 @@ jobs:
           tag_prefix: ${{ inputs.service-name }}-v
           fetch_all_tags: true
           dry_run: true
-
-      - id: final
-        run: |
-          VERSION="${{ steps.tag_version.outputs.new_version }}"
-          
-          if [ "${{ github.ref_name }}" != "main" ]; then
-            VERSION="$VERSION-SNAPSHOT"
-          fi
-
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          append_to_pre_release_tag: "SNAPSHOT-${{ github.ref_name }}"
+          pre_release: ${{ github.ref_name != 'main' }}
