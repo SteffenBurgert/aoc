@@ -15,7 +15,7 @@ jobs:
   calculate-version:
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.tag_version.outputs.new_version }}
+      version: ${{ steps.final.outputs.version }}
 
     steps:
       - name: Checkout
@@ -23,7 +23,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Bump version
+      - name: Get Base Version
         id: tag_version
         uses: mathieudutour/github-tag-action@v6.2
         with:
@@ -31,10 +31,19 @@ jobs:
           tag_prefix: ${{ inputs.service-name }}-v
           fetch_all_tags: true
           dry_run: true
-          append_to_pre_release_tag: "SNAPSHOT-${{ github.ref_name }}"
           release_branches: main
 
-      - name: Debug version Output
+      - name: Generate Timestamp and Final Version
+        id: final
         run: |
-          echo "Calculated version: ${{ steps.tag_version.outputs.new_version }}"
-          echo "Target tag: ${{ steps.tag_version.outputs.new_tag }}"
+          TIMESTAMP=$(date +'%Y%m%d-%H%M')
+          BASE_VERSION="${{ steps.tag_version.outputs.new_version }}"
+          
+          if [ "${{ github.ref_name }}" != "main" ]; then
+            FINAL_VERSION="${BASE_VERSION}-SNAPSHOT-${{ github.ref_name }}-${TIMESTAMP}"
+          else
+            FINAL_VERSION="${BASE_VERSION}"
+          fi
+          
+          echo "version=$FINAL_VERSION" >> $GITHUB_OUTPUT
+          echo "Calculated Version with Timestamp: $FINAL_VERSION"
