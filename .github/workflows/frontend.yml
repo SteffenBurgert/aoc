@@ -2,19 +2,23 @@ name: frontend
 
 on:
   workflow_call:
-    inputs:
-      version:
-        required: true
-        type: string
 
 jobs:
+  version:
+    uses: ./.github/workflows/version.yml
+    with:
+      service-name: frontend
+
   run-build:
+    needs:
+      - version
     uses: ./.github/workflows/build-frontend.yml
     with:
-      version: ${{ inputs.version }}
+      version: ${{ needs.version.outputs.version }}
 
   publish:
     needs:
+      - version
       - run-build
 
     permissions:
@@ -25,7 +29,7 @@ jobs:
 
     uses: ./.github/workflows/publish.yml
     with:
-      version: ${{ inputs.version }}
+      version: ${{ needs.version.outputs.version }}
       artifact-name: frontend-dist
       artifact-path: frontend/dist/
       image-name: frontend

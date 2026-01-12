@@ -7,21 +7,6 @@ on:
       - aoc-infra # todo: remove after testing
 
 jobs:
-  version:
-    runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.version.outputs.version }}
-    steps:
-      - id: version
-        run: |
-          BASE_VERSION="${GITHUB_SHA::7}"
-          
-          if [ "${{ github.ref_name }}" != "main" ]; then
-            BASE_VERSION="$BASE_VERSION-SNAPSHOT"
-          fi
-          
-          echo "version=$BASE_VERSION" >> $GITHUB_OUTPUT
-
   changes:
     runs-on: ubuntu-latest
     outputs:
@@ -53,7 +38,6 @@ jobs:
 
   release-backend:
     needs:
-      - version
       - changes
     if: needs.changes.outputs.backend == 'true'
 
@@ -64,13 +48,9 @@ jobs:
       id-token: write
 
     uses: ./.github/workflows/backend.yml
-    with:
-      version:
-        ${{ needs.version.outputs.version }}
 
   release-frontend:
     needs:
-      - version
       - changes
     if: needs.changes.outputs.frontend == 'true'
 
@@ -81,6 +61,3 @@ jobs:
       id-token: write
 
     uses: ./.github/workflows/frontend.yml
-    with:
-      version:
-        ${{ needs.version.outputs.version }}

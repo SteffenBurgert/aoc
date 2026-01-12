@@ -59,6 +59,7 @@ jobs:
 
   create-release:
     needs: push-docker
+    if: github.ref_name == 'main'
     runs-on: ubuntu-latest
 
     permissions:

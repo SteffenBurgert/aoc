@@ -2,20 +2,24 @@ name: backend
 
 on:
   workflow_call:
-    inputs:
-      version:
-        required: true
-        type: string
 
 jobs:
+  version:
+    uses: ./.github/workflows/version.yml
+    with:
+      service-name: backend
+
   run-build:
+    needs:
+      - version
     uses: ./.github/workflows/build-backend.yml
     with:
-      version: ${{ inputs.version }}
+      version: ${{ needs.version.outputs.version }}
 
   publish:
     needs:
-     - run-build
+      - version
+      - run-build
 
     permissions:
       contents: write
@@ -25,7 +29,7 @@ jobs:
 
     uses: ./.github/workflows/publish.yml
     with:
-      version: ${{ inputs.version }}
+      version: ${{ needs.version.outputs.version }}
       artifact-name: backend-jar
       artifact-path: backend/build/libs/
       image-name: backend
