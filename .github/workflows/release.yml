@@ -1,5 +1,6 @@
 name: release
 
+#todo vor version check
 on:
   workflow_dispatch:
   push:
