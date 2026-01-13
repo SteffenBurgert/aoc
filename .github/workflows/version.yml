@@ -15,7 +15,7 @@ jobs:
   calculate-version:
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.tag_version.outputs.new_version }}
+      version: ${{ steps.clean_version.outputs.version }}
 
     steps:
       - name: Checkout
@@ -34,5 +34,11 @@ jobs:
           append_to_pre_release_tag: "SNAPSHOT-${{ github.ref_name }}"
           release_branches: main
 
-      - name: Print Version
-        run: echo "Calculated version is ${{ steps.tag_version.outputs.new_version }}"
+      - name: Remove Trailing Zero
+        id: clean_version
+        run: |
+          RAW_VERSION="${{ steps.tag_version.outputs.new_version }}"
+          CLEAN_VERSION=$(echo $RAW_VERSION | sed 's/\.[0-9]\+$//')
+          
+          echo "version=$CLEAN_VERSION" >> $GITHUB_OUTPUT
+          echo "Cleaned version: $CLEAN_VERSION"
