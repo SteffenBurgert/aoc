@@ -28,5 +28,5 @@ to understand how to use the mandatory `!` for cross-layer changes.
 This project uses automated versioning powered by GitHub Actions. Versions are calculated
 dynamically based on your commit history and the specific service being deployed.
 
-Please read our [**Contributing Guidelines**](./resources/VERSIONING.md) if you want to know how the
-versioning works in this repo.
+> For a detailed breakdown of our **Semantic Versioning** and the **Snapshot logic**, please refer
+> to our [**Versioning Strategy**](./resources/VERSIONING.md)
