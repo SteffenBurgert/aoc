@@ -1,4 +1,4 @@
-const { execSync } = require('child_process');
+const {execSync} = require('child_process');
 
 module.exports = {
   extends: ['@commitlint/config-conventional'],
@@ -9,8 +9,21 @@ module.exports = {
   plugins: [
     {
       rules: {
-        'frontend-backend-exclamation': ({ header }) => {
-          const changedFiles = execSync('git diff --cached --name-only').toString();
+        'frontend-backend-exclamation': ({header}) => {
+          let changedFiles = '';
+
+          try {
+            if (process.env.CI) {
+              changedFiles = execSync(
+                  'git diff-tree --no-commit-id --name-only -r HEAD').toString();
+            } else {
+              changedFiles = execSync(
+                  'git diff --cached --name-only').toString();
+            }
+          } catch (e) {
+            return [true];
+          }
+
           const hasFrontend = changedFiles.includes('frontend/');
           const hasBackend = changedFiles.includes('backend/');
           const hasExclamation = /^[a-z]+(\(.*\))?!:/.test(header);
@@ -18,13 +31,13 @@ module.exports = {
           if (hasFrontend && hasBackend) {
             return [
               hasExclamation,
-              '❌ BOTH folders (frontend & backend) modified: You MUST include an "!" after the type (e.g., feat!: ...)',
+              '❌ BOTH /frontend and /backend modified: You MUST include "!" (e.g., feat!: description)',
             ];
           }
 
           return [
             !hasExclamation,
-            '❌ The "!" is ONLY allowed when /frontend AND /backend are modified simultaneously.',
+            '❌ The "!" is ONLY allowed when BOTH /frontend AND /backend are modified.',
           ];
         },
       },

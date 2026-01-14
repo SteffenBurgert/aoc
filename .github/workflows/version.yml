@@ -34,11 +34,10 @@ jobs:
           append_to_pre_release_tag: "SNAPSHOT-${{ github.ref_name }}"
           release_branches: main
 
-      - name: Remove Trailing Zero
+      - name: Remove Trailing Zero on SNAPSHOT
         id: clean_version
         run: |
-          RAW_VERSION="${{ steps.tag_version.outputs.new_version }}"
-          CLEAN_VERSION=$(echo $RAW_VERSION | sed 's/\.[0-9]\+$//')
+          RAW="${{ steps.tag_version.outputs.new_version }}"
+          [[ "${{ github.ref_name }}" != "main" ]] && VERSION=$(echo "$RAW" | sed 's/\.[0-9]\+$//') || VERSION="$RAW"
           
-          echo "version=$CLEAN_VERSION" >> $GITHUB_OUTPUT
-          echo "Cleaned version: $CLEAN_VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
