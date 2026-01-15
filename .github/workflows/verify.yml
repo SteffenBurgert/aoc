@@ -1,0 +1,17 @@
+name: verify
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+jobs:
+  backend:
+    uses: ./.github/workflows/build-backend.yml
+    with:
+      version: "temp-version"
+
+  frontend:
+    uses: ./.github/workflows/build-frontend.yml
+    with:
+      version: "temp-version"

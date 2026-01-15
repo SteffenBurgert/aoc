@@ -2,3 +2,5 @@
 .DS_Store
 go-aoc.iml
 **/resources/sourceFiles
+
+node_modules/

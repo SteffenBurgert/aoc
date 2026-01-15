@@ -1,0 +1,62 @@
+name: release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+      backend: ${{ steps.filter.outputs.backend }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          base: ${{ github.ref_name }}
+          filters: |
+            frontend:
+              - 'frontend/**'
+              - '.github/workflows/release.yml'
+              - '.github/workflows/version.yml'
+              - '.github/workflows/frontend.yml'
+              - '.github/workflows/build-frontend.yml'
+              - '.github/workflows/publish.yml'
+            backend:
+              - 'backend/**'
+              - '.github/workflows/release.yml'
+              - '.github/workflows/version.yml'
+              - '.github/workflows/backend.yml'
+              - '.github/workflows/build-backend.yml'
+              - '.github/workflows/publish.yml'
+
+  release-backend:
+    needs:
+      - changes
+    if: needs.changes.outputs.backend == 'true'
+
+    permissions:
+      contents: write
+      packages: write
+      attestations: write
+      id-token: write
+
+    uses: ./.github/workflows/backend.yml
+
+  release-frontend:
+    needs:
+      - changes
+    if: needs.changes.outputs.frontend == 'true'
+
+    permissions:
+      contents: write
+      packages: write
+      attestations: write
+      id-token: write
+
+    uses: ./.github/workflows/frontend.yml

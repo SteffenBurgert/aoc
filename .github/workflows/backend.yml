@@ -1,0 +1,36 @@
+name: backend
+
+on:
+  workflow_call:
+
+jobs:
+  version:
+    uses: ./.github/workflows/version.yml
+    with:
+      service-name: backend
+
+  run-build:
+    needs:
+      - version
+    uses: ./.github/workflows/build-backend.yml
+    with:
+      version: ${{ needs.version.outputs.version }}
+
+  publish:
+    needs:
+      - version
+      - run-build
+
+    permissions:
+      contents: write
+      packages: write
+      attestations: write
+      id-token: write
+
+    uses: ./.github/workflows/publish.yml
+    with:
+      version: ${{ needs.version.outputs.version }}
+      artifact-name: backend-jar
+      artifact-path: backend/build/libs/
+      image-name: backend
+      docker-context: ./backend

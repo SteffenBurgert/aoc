@@ -1,0 +1,43 @@
+name: version
+
+on:
+  workflow_call:
+    inputs:
+      service-name:
+        required: true
+        type: string
+    outputs:
+      version:
+        description: "Calculated Version"
+        value: ${{ jobs.calculate-version.outputs.version }}
+
+jobs:
+  calculate-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.clean_version.outputs.version }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get Base Version
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tag_prefix: ${{ inputs.service-name }}-v
+          fetch_all_tags: true
+          dry_run: true
+          append_to_pre_release_tag: "SNAPSHOT-${{ github.ref_name }}"
+          release_branches: main
+
+      - name: Remove Trailing Zero on SNAPSHOT
+        id: clean_version
+        run: |
+          RAW="${{ steps.tag_version.outputs.new_version }}"
+          [[ "${{ github.ref_name }}" != "main" ]] && VERSION=$(echo "$RAW" | sed 's/\.[0-9]\+$//') || VERSION="$RAW"
+          
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
