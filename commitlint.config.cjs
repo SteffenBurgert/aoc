@@ -15,10 +15,12 @@ module.exports = {
           try {
             if (process.env.CI) {
               changedFiles = execSync(
-                  'git diff-tree --no-commit-id --name-only -r HEAD').toString();
+                  'git diff --name-only origin/main...HEAD'
+              ).toString();
             } else {
               changedFiles = execSync(
-                  'git diff --cached --name-only').toString();
+                  'git diff --name-only main'
+              ).toString();
             }
           } catch (e) {
             return [true];

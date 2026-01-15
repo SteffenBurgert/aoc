@@ -19,4 +19,7 @@ jobs:
         run: npm install @commitlint/cli @commitlint/config-conventional
 
       - name: Run Commitlint
-        run: npx commitlint --config commitlint.config.cjs --from HEAD~1 --to HEAD --verbose
+        run: echo "${{ github.event.pull_request.title }}" | npx commitlint --config commitlint.config.cjs --verbose
+
+      - name: Run Commitlint for Commits
+        run: npx commitlint --config commitlint.config.cjs --from origin/main --to HEAD --verbose
